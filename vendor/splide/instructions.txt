@@ -1,0 +1,24 @@
+Add splide js to site/scripts.php  (<script src='../wp-content/themes/mirren/vendor/splide/splide.min.js'></script>)
+Add splide core css:
+<link rel='stylesheet' href='<?php echo get_stylesheet_directory_uri(); ?>/vendor/splide/splide-core.min.css' media='all' />
+
+
+There is a working example in:
+http://localhost/00_Current/Dev_Projects/projects/clientplayground/splide-testing
+
+Add code like:
+
+<section id="testimonials" class="testimonials">
+
+<div class="contain-standard p-mobile-standard p-t-75 p-b-30" style="position: relative; z-index: 1;">
+<div id="slider-testimonials" class="splide">
+		<div class="splide__track">
+			<ul class="splide__list" style="height: 100px;">
+				<li class="splide__slide" style="background: red; height: 100px;">Slide 01</li>
+				<li class="splide__slide" style="background: yellow; height: 100px;">Slide 02</li>
+				<li class="splide__slide" style="background: green; height: 100px;">Slide 03</li>
+			</ul>
+		</div>
+	  </div>
+</div>
+</section>

@@ -1,0 +1,77 @@
+.wpcf7-form{
+	max-width: 700px;
+	padding: 20px;
+	
+	background: rgba(0,0,0,.15);
+	border: 1px solid rgba(255,255,255,.1);
+	
+	.wpcf7-list-item{
+		positon: relative;
+	}
+	
+	.wpcf7-list-item.first{
+		margin-left: 0;
+	}
+	
+	input[type=text],
+	input[type=email]{
+		width: 100%;
+	}
+	
+	p,
+	.col-6{
+		padding-right: 20px;
+	}
+	.col-6 p{
+		padding-right: 0;
+	}
+}
+
+
+/* Checkbox Things */
+	.wpcf7 span.wpcf7-form-control-wrap .wpcf7-form-control.wpcf7-checkbox span.wpcf7-list-item {
+	  position: relative;
+	  margin-left: 25px;
+	  margin-right: 40px;
+	  display: inline-block;
+	}
+	.wpcf7 span.wpcf7-form-control-wrap .wpcf7-form-control.wpcf7-checkbox span.wpcf7-list-item input[type="checkbox"] + span:before {
+	  display: block;
+	  position: absolute;
+	  content: '';
+	  border-radius: 0;
+	  height: 18px;
+	  width: 18px;
+	  top: 2px;
+	  left: -25px;
+	  border: 1px solid rgba(255,255,255,.1);
+	  background: #393D60;
+	 }
+	 .wpcf7 span.wpcf7-form-control-wrap .wpcf7-form-control.wpcf7-checkbox span.wpcf7-list-item input[type="checkbox"] {
+	  width: 18px;
+	  height: 18px;
+	  position: absolute;
+	  visibility: hidden;
+	  top: 0;
+	  left: 0;
+	}
+	.wpcf7 span.wpcf7-form-control-wrap .wpcf7-form-control.wpcf7-checkbox span.wpcf7-list-item input[type="checkbox"] + span:after {
+	  display: block;
+	  position: absolute;
+	  content: "\2713";
+	  height: 18px;
+	  width: 18px;
+	  top: 2px;
+	  left: -23px;
+	  visibility: hidden;
+	  font-size: 18px;
+	  text-align: center;
+	  line-height: 20px;
+	}
+	.wpcf7 span.wpcf7-form-control-wrap .wpcf7-form-control.wpcf7-checkbox span.wpcf7-list-item input[type="checkbox"]:checked + span:before {
+	  background: #5B63AC;
+	}
+	.wpcf7 span.wpcf7-form-control-wrap .wpcf7-form-control.wpcf7-checkbox span.wpcf7-list-item input[type="checkbox"]:checked + span:after {
+	  visibility: visible;
+	}
+/* Checkbox Things */

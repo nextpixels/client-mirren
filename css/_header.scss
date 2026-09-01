@@ -1,0 +1,77 @@
+.header-logo-column img{
+	width: 200px;
+	max-width: 200px;
+}
+.site-header-wrapper{
+	.columns-flex{
+		max-width: 1100px;
+		margin: 0 auto;
+	}
+
+	a{
+		color: #fff;
+	}
+	.navigation-button a{
+		padding: 10px 20px;
+		background: #EF9F27;
+		border-radius: 50px;
+		display: inline;
+	}
+	.navigation-button-blue a{
+		padding: 10px 20px;
+		background: #0D9EE8;
+		border-radius: 50px;
+		display: inline;
+	}
+	.navigation-button.navigation-button-secondary a,
+	.navigation-button.navigation-button-secondary a:hover{
+		background: #7CF1E2;
+		color: #142737;
+	}
+	
+}
+
+
+
+.main-navigation .nav-menu>li{
+	padding-left: 25px;
+}
+.main-navigation .nav-menu>li.navigation-button-blue{
+	padding-left: 10px;
+}
+
+.main-navigation .menu-toggle{
+	background: #274C6C;
+	
+	svg path{
+		fill: #fff;
+	}
+}
+
+
+/* Page Scrolled */
+	.page-scrolled-500 #primary-menu{
+		background: #0E1B26;
+	}
+	.page-scrolled-500 #primary-menu a{
+		color: #fff;
+	}
+	.page-scrolled-500 #primary-menu .navigation-button a{
+		background: none;
+		padding-left: 0;
+	}
+/* Page Scrolled */
+
+/* Mobile */
+	@media(max-width: 1100px){
+		#primary-menu{
+			background: #0E1B26;
+		}
+		#primary-menu a{
+			color: #fff;
+		}
+		#primary-menu .navigation-button a{
+			background: none;
+			padding-left: 0;
+		}
+	}

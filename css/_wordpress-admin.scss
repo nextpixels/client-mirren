@@ -1,0 +1,23 @@
+$page-background: #fff !default;
+
+.block-editor-writing-flow{
+	background: $page-background;
+	padding: 0;
+}
+html :where(.wp-block){
+	max-width: 1400px !important;
+	margin-bottom: 0 !important;
+}
+
+.edit-post-visual-editor__post-title-wrapper{
+	background: #fff;
+	margin: 0 !important;
+	padding: 30px;
+	
+	h1{
+		color: #000;
+		text-decoration: none;
+		margin: 0;
+		font-size: 1.5rem;
+	}
+}

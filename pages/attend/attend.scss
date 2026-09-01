@@ -1,0 +1,34 @@
+@media(max-width: 1000px){
+	#page-hero .hero-content-section{
+		padding-top: 50px;
+		padding-bottom: 10px;
+		min-height: auto;
+	}
+}
+@media(min-width: 1000px){
+	.hero-text{
+		padding-right: 50px;
+	}
+	
+	.page-hero img{
+		right: 0;
+	}
+}
+
+
+.opportunity-tile{
+	h3{
+		font-size: 1.1rem;
+	}
+	.opportunity-image{
+		max-height: 80px;
+	}
+}
+
+@media(min-width: 1001px){
+	.page-hero .hero-content{
+		background-image: url('../wp-content/themes/mirren/pages/attend/hero-attend.jpg');
+		background-repeat: no-repeat;
+		background-position: 65% bottom;
+	}
+}

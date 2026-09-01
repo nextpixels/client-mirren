@@ -1,0 +1,167 @@
+$tile-background: #F2F2F2;
+$tile-font-color: #000;
+
+.day-content-wrapper-content{
+	background: #193044;
+	border-radius: 10px;
+}
+
+.page-agenda{
+	.track-header-1{
+		background: #0A7BB5;
+	}
+	.track-1.is-keynote .session-tile-header{
+		background: #697CEC;
+
+	}
+	.track-1 .session-tile-header{
+		background: #0D9BE4;
+	}
+	.day-navigation{
+		text-align: center;
+	}
+	.day-navigation-link, 
+	.day-navigation-link:hover, 
+	.day-navigation-link:visited{
+		background: #4C5DB4;
+		text-align: center;
+	}
+	.day-navigation-link.current, 
+	.day-navigation-link.current:hover, 
+	.day-navigation-link.current:visited,
+	.day-navigation-tab-divet{
+		background: #697CEC;
+	}
+	.day-navigation-link,
+	.day-navigation-link.tab-small{
+		padding-left: 20px;
+		padding-right: 20px;
+		min-width: 210px;
+		
+		h3{
+			margin-bottom: 0;
+		}
+	}
+	.page-main-dark .speakers-list-strapline{
+		color: #56BFC3;
+	}
+	
+	
+	/* Mobile */
+		.day-title-mobile,
+		.day-body-mobile,
+		.track-title-mobile,
+		.track-body-mobile{
+			background: $tile-background;
+			background: #fff;
+		}
+		.agenda-mobile-date,
+		.agenda-mobile-date span{
+			color: $tile-font-color;
+		}
+		.sessions-by-track .text-accordion-body{
+			background: #F2F2F2;
+			border-radius: 5px;
+			margin-top: 10px;
+			padding-top: 10px;
+		}
+		.session-tile-header-track{
+			display: none;
+		}
+		.agenda-mobile .track-header-text{
+			color: $tile-font-color;
+		}
+	/* Mobile */
+}
+
+
+/* Hide Dates on Post-Conference */
+	#day-20241016 .row-time-time{
+		display: none;
+	}
+/* Hide Dates on Post-Conference */
+
+.virtual-key{
+	display: none;
+}
+
+/* Session Detail */
+	#session-detail h2{
+		text-transform: none;
+	}
+	
+/* Session PreTitles */
+	.session-tile-header{
+		margin-bottom: 1px;
+	}
+	.page-main-dark  .section-tile-preheader{
+		padding: 4px 12px;
+		color: #fff;
+		background: #007D7E;
+		font-weight: bolder;
+	}
+	.has-pretitle .session-tile-header-padding{
+		padding-top: 6px;
+		padding-bottom: 0;
+	}
+	.has-pretitle .session-tile-header-footer{
+		padding-top: 2px;
+	}
+	.has-pretitle .session-tile-header{
+		padding-bottom: 32px;
+	}
+/* Session PreTitles */	
+
+/* Highlighted Sessions */
+	.track-1.tile-time-20241009152000 .session-tile-header,
+	.track-1.tile-time-20241009145000 .session-tile-header,
+	.track-1.tile-time-20241009162500 .session-tile-header,
+	.track-1.tile-time-20241009172500 .session-tile-header,
+	.track-1.tile-time-20241009163000 .session-tile-header,
+	.track-1.tile-time-20241009173000 .session-tile-header{ 
+		background: #08C2C4;
+	}
+	
+	
+	
+/* Highlighted Sessions */
+	
+	
+/* Hide some things */	
+#day-20251016 .row-time-time{
+	display: none;
+}
+#group-20251016 .track-body-mobile-time,
+#group-20251016 .day-header-mobile-date{
+	display: none;
+}
+.day-header-mobile-20251016 .day-header-mobile-date{
+	display: none;
+}
+.tab-20251016{
+	height: 75px;
+	padding-top: 16px !important;
+	
+	.day-navigation-date-wrapper{
+		display: none;
+	}
+}
+
+.day-header-mobile-20260519 .day-header-mobile-date{
+	display: none;
+}
+
+.session-tile-header{
+	.session-tile-header-footer{
+		padding-bottom: 7px;
+	}
+	a.session-detail-link{
+		font-size: .8rem;
+		line-height: 1.2;
+		border-radius: 10px;
+		border: 0;
+		background: rgba(255,255,255,.2);
+		padding: 3px 8px 1px 10px;
+		font-weight: 500;
+	}
+}

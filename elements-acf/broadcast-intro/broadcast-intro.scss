@@ -1,0 +1,36 @@
+div#broadcast-intro {
+    background: #0A7BB5;
+    display: inline-block;
+    padding: 0 30px 30px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+	border-radius: 10px;
+	
+}
+.broadcast-intro-top-header {
+    text-align: right;
+    padding: 10px 0;
+}
+
+
+
+#page #content .broadcast-intro-wrap{
+	h1{
+		color: #fff;
+	}
+	a{
+		color: #fff;
+		text-decoration: underline;
+	}
+}
+
+.page-main-dark .text-accordion-body,
+.page-main-dark .text-accordion-body a{
+	color: #fff;
+	font-weight: normal;
+}
+.text-accordion .columns-flex .col-20{
+	display: flex;
+	width: 15px;
+}

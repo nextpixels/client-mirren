@@ -1,0 +1,132 @@
+/* Header */
+	body .site-header-wrapper .navigation-button a{
+		border: 2px solid #fff;
+		background: #FD9A04;
+	}
+	body .site-header-wrapper .navigation-button a:hover{
+		background: #EF8727;
+	}
+/* Header */
+
+
+body #page-hero{
+	height: 50vw;
+	min-height: 825px;
+	max-height: 1100px;
+}
+@media(max-width: 600px){
+	body #page-hero{
+		height: auto;
+		min-height: 100px;
+	}
+}
+
+.home-v2-hero{
+	
+	.column-1,
+	.column-2{
+		padding-bottom: 75px;
+	}
+	
+	h1{
+		font-weight: 300;
+		text-transform: capitalize;
+		max-width: 500px;
+	}
+	@media(max-width: 600px){
+		
+	}
+	p, .text-large{
+		color: #fff; 
+		font-size: 1.1rem;
+		line-height: 1.5;
+	}
+	.text-large{
+		font-size: 2rem;
+		font-weight: 300;
+		line-height: 1;
+	}
+	.column-1{
+		display: flex;
+		align-items: center;
+		padding-right: 75px;
+	}
+	@media(max-width: 700px){
+		.column-1{
+			padding-right: 0;
+		}
+	}
+	
+	.hero-image-wrapper{
+		img{
+			width: 400px;
+			float: right;
+		}
+	}
+	
+	.btn-primary,
+	.btn-primary:hover{
+		border: 2px solid #fff;
+		font-weight: 600;
+		font-size: 1.05rem;
+		padding: 10px 30px;
+		background: #FD9A04;
+	}
+	.btn-primary:hover{
+		background: #EF8727;
+	}
+	
+}
+
+@media(max-width: 900px){
+	.hero-wrapper-outer{
+		height: auto !important;
+		padding-top: 125px;
+	}
+	.home-v2-hero .column-2{
+		display: none;
+	}
+}
+
+
+/* Benefits Section */
+	.home-benefits{
+		h2{
+			text-transform: capitalize;
+			font-size: 2.1rem;
+		}
+		h3{
+			font-size: 1rem;
+		}
+		.tile-image{
+			padding-bottom: 15px;
+			min-height: 72px;
+		}
+		img{
+			width: 50px;
+		}
+		
+		@media(max-width: 650px){
+			.columns-grid.columns-grid-4{
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+		}
+		@media(max-width: 400px){
+			.columns-grid.columns-grid-4{
+				grid-template-columns: repeat(1, minmax(0, 1fr));
+			}
+		}
+	}
+/* Benefits Section */
+
+
+@media(max-width: 1000px){
+	.col.header-logo-column{
+		padding: 0;
+	}
+}
+@media(max-width: 430px){
+	#page-hero .text-large{
+		max-width: 225px;
+	}
+}

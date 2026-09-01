@@ -1,0 +1,354 @@
+$tile-background: #F2F2F2;
+
+body,
+body.single-tribe_events,
+body.page-tribe-attendee-registration, 
+body.woocommerce-page{
+	background: #fff;
+}
+a, body, button, div, input[type=submit], label, li, p, select, span, td, th,h2,h3,h4{
+		color: #000;
+}
+.page-main-dark{
+	background: rgba(0,0,0,.05);
+	background: #fff;
+	
+	h1,h2,h3,h4,p, div, span, h2.h2-small{
+		color: #000;
+	}
+}
+.wp-singular .site-content-inner{ /* Page background on secondary pages */
+	background: #fff;
+}
+h1,h2,h3,h4,p, div, .tile-gray div, .tile-gray p, h2.h2-small,#page #content h1{
+	color: #000;
+}
+.single-tribe_events h1, .single-tribe_events h2, .single-tribe_events h3, .single-tribe_events h4, .single-tribe_events h5, .single-tribe_events h6, .single-tribe_events p,
+.woocommerce-page h1, .woocommerce-page h2, .woocommerce-page h3, .woocommerce-page h4, .woocommerce-page h5, .woocommerce-page h6,
+.woocommerce-page div, .woocommerce-page p, body.woocommerce-page, .woocommerce-page button, .woocommerce-page input[type=submit], .woocommerce-page label, .woocommerce-page li, .woocommerce-page select, .woocommerce-page span, .woocommerce-page td, .woocommerce-page th{
+	color: #000;
+}
+.woocommerce-page #content a.button{
+	color: #fff;
+}
+#content button[name=apply_coupon]{
+	color: #697CEC;
+}
+.entry-content.contain-1300{
+	max-width: 100%;
+}
+
+
+/* Header */
+	.site-header-wrapper {
+		background: #142737;
+	}
+	@media(max-width: 1100px){
+		.site-header-wrapper {
+			height: 60px;
+		}
+	}
+/* Header */
+
+
+.main-navigation .menu-toggle{
+	background: #30B1F3;
+	border-bottom-left-radius: 5px;
+}
+
+/* Small Hero */
+	#page-hero.small-medium {
+		height: 45vw;
+		min-height: 450px;
+		max-height: 624px;
+	}
+
+
+/* Small Hero */
+
+
+/* Secondary Page Heroes */
+	.hero-simple .hero-simple-content{
+		background-size: contain;
+	}
+	.hero-simple-footer{
+		background: #F2F2F2;
+		padding-bottom: 50px;
+	}
+	.hero-simple-footer-contain{
+		padding-top: 1px;
+		
+	}
+	.hero-simple-footer-content{
+		margin-top: -25px;
+	}
+/* Secondary Page Heroes */
+
+/* Secondary Page Body */
+	.page-main{
+		background: #F2F2F2;
+	}
+/* Secondary Page Body */	
+
+
+/* CTA Form */
+	body .cta-form-wrapper{
+		background: #fff;
+		background: #F2F2F2;
+	}
+/* CTA Form */
+
+
+/* General Elements */
+	.right-panel{
+		background: #fff;
+		
+		h2{
+			color: #000;
+		}
+	}
+	.tile-gray{
+		background: #F2F2F2;
+	}
+/* General Elements */
+
+
+/* Forms */
+	.wpcf7-form-control-wrap{
+		
+		input[type=text],
+		input[type=email]{
+			background: rgba(0,0,0,.05);
+			border: 1px solid rgba(0,0,0,.3);
+			color: #000;
+		}
+		input[type=text]::placeholder,
+		input[type=email]::placeholder{
+			color: #000;
+		}
+	}
+	body .cta-form{
+		input[type=text],
+		input[type=email]{
+			background: rgba(0,0,0,.05);
+			border: 1px solid rgba(0,0,0,.1);
+			color: #000;
+		}
+	}
+/* CTA Footer */
+
+
+/* Home Page */
+	.page-home .site-header{
+		background: none;
+	}
+	.page-home .site-content{
+		padding-top: 0;
+	}
+	.page-home .site-header-wrapper{
+		background: none;
+	}
+	.page-home #page-hero.small-medium{
+		min-height: 570px;
+	}
+	.page-home #page #content h1{
+		color: #fff;
+	}
+	.page-home .page-hero-inner{
+		background: #16182B;
+	}
+	body .featured-sessions{
+		background: rgba(0,0,0,.05);
+	}
+	.cta-form-wrapper{
+		background: #fff;
+	}
+	.home-benefits{
+		img{
+			width: 80px;
+		}
+		h3{
+			font-size: 1rem;
+		}
+	}
+	
+	.home-benefits{
+		.contain-1200{
+			background: rgba(0,0,0,.05);
+			padding-top: 40px;
+			padding-bottom: 40px;
+			border-radius: 8px;
+		}
+		
+		.section-wrapper{
+			max-width: 800px;
+			margin: 0 auto;
+		}
+	}
+	.page-home h1{
+		color: #fff;
+	}
+/* Home Page */
+
+
+/* Agenda */
+	.day-content-wrapper-content,
+	body .day-content-wrapper-background{
+		background: #fff;
+	}
+	body .session-tile{
+		background: rgba(0,0,0,.05);
+	}
+	
+	#speaker-detail{
+		#speaker-detail-name{
+			color: #000;
+		}
+	}
+	
+	#agenda-listing-grid{
+		.day-navigation-date{
+			color: #fff;
+		}
+		.session-detail-link,
+		.session-detail-link span{
+			color: #fff;
+			font-size: .8rem;
+		}
+	}
+	body .speakers-list-moderator{
+		color: #fff;
+		background: #0D9BE4;
+	}
+	.page-main-dark div.track-header-text{
+		color: #fff;
+	}
+/* Agenda */
+
+
+/* Logistics */
+	.page-logistics{
+		.hero-simple-footer{
+			background: none;
+		}
+		.section-support{
+			background: none;
+		}
+		.section-hotels h3{
+			color: #000;
+			font-size: 1.1rem;
+			max-width: 220px;
+		}
+	}
+/* Logistics */
+
+
+/* Register */
+	.single-tribe_events .site-content div, 
+	.single-tribe_events .site-content p, 
+	.single-tribe_events .site-content a, 
+	body.single-tribe_events  .site-content, 
+	.single-tribe_events button, 
+	.single-tribe_events input[type=submit], 
+	.single-tribe_events label, 
+	.single-tribe_events li, 
+	.single-tribe_events select, 
+	.single-tribe_events span, 
+	.single-tribe_events td, 
+	.single-tribe_events th,
+	body.single-tribe_events h2,
+	body.single-tribe_events h4{
+		color: #000;
+	}
+	.single-tribe_events .site-content .tab,
+	.single-tribe_events .site-content .tab-content-header{
+		color: #fff;
+	}
+	.theme-ergo .tab-content-in-person .register-row:nth-child(even), 
+	.theme-ergo .tab-content-virtual .register-row:nth-child(even){
+		background: #F2F2F2;
+	}
+	.theme-ergo .tab-content-in-person .register-row:nth-child(odd), 
+	.theme-ergo .tab-content-virtual .register-row:nth-child(odd){
+		background: #E8E8E8;
+	}
+	.theme-ergo .tab-andor-label{
+		background: #98D8DA;
+	}
+	body .register-table .fa-info-circle{
+		color: #399FA2;
+	}
+
+	
+	.tribe-tickets__tickets-form .tribe-tickets__tickets-footer button.tribe-common-c-btn:hover{
+		color: #fff;
+	}
+	
+	body.page-tribe-attendee-registration p{
+		color: #000;
+	}
+	.woocommerce-cart .woocommerce table.shop_table th{
+		color: #fff;
+	}
+	.woocommerce-cart .woocommerce table.shop_table td{
+		background: #F2F2F2;
+	}
+	.woocommerce .quantity input,
+	#coupon_code{
+		color: #000;
+		border: 1px solid rgba(0, 0, 0, .2);
+		background: #fff;
+	}
+	#coupon_code::placeholder{
+		color: #000;
+	}
+	.woocommerce-notices-wrapper .woocommerce-error, 
+	.woocommerce-notices-wrapper .woocommerce-message{
+		background: #F2F2F2;
+		color: #000;
+	}
+	body.woocommerce-page td,
+	body.woocommerce-page td span{
+		color: #000;
+	}
+	body .tribe-common .tribe-common-b1,
+	body .event-tickets .tribe-tickets__attendee-tickets-item.tribe-tickets__form .tribe-tickets__form-field-label{
+		color: #000;
+	}
+	body .tribe-common .tribe-common-c-btn{
+		color: #fff;
+	}
+	/*
+	body.page-tribe-attendee-registration label{
+		color: #000;
+	}
+	*/
+	body .event-tickets .tribe-tickets__form input[type=text],
+	body .tribe-tickets__attendee-tickets input[type=text],
+	body .tribe-tickets__attendee-tickets input[type=text]:focus,
+	body .tribe-tickets__attendee-tickets input[type=email],
+	body .tribe-tickets__attendee-tickets input[type=email]:focus,
+	body .tribe-tickets__form-field-input,
+	body .tribe-tickets__form-field-input:focus,
+	body .woocommerce form .form-row input[type=text],
+	body .woocommerce form .form-row select,
+	body .woocommerce form .form-row input.input-text:focus{
+		color: #000;
+		background: #fff;
+		border: 1px solid rgb(204,204,204);
+	}
+	body .woocommerce form .form-row input[type=text]:placeholder{
+		color: #000;
+	}
+	body .woocommerce-checkout .woocommerce-checkout-review-order-table thead{
+		background: $tile-background;
+	}
+/* Woo Commerce */
+
+
+.hero-callout{
+	.strapline,
+	.hero-callout-text-wrapper{
+		color: #fff;
+	}
+}

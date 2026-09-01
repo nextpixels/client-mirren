@@ -1,0 +1,32 @@
+.page-sponsorship{
+	.splide__arrow.splide__arrow--next,
+	.splide__arrow.splide__arrow--prev{
+		background: rgba(0,0,0,.7);
+		
+		path{
+			fill: #fff;
+		}
+	}
+	.splide__arrow.splide__arrow--prev{
+		left: 10px;
+	}
+	.splide__arrow.splide__arrow--next{
+		right: 10px;
+	}
+	.splide__pagination__page.is-active{
+		background: #fff;
+	}
+	
+
+	
+	.ergo-image-carousel-tile {
+		text-align: center;
+		
+		img{
+			margin: 0 auto;
+			width: auto;
+			height: auto;
+		}
+	}
+	
+}

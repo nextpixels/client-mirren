@@ -1,0 +1,53 @@
+/* Register Grid/Buttons Page */
+
+
+
+/* Register Grid/Buttons Page */
+
+
+/* Regsiter Attendees Page */
+
+/* Fonts */
+h3.register-attendees-product-title{
+	font-size: 1.2rem;
+	margin-bottom: 16px;
+	font-weight: 500;
+}
+h4.register-attendees-attendee-title{
+	font-size: 1rem;
+	margin-bottom: 10px;
+	font-weight: 500;
+}
+/* Fonts */
+
+
+.register-attendees-product-tile{
+	background: rgba(0,0,0,.2);
+	border-radius: 10px;
+	padding: 25px 20px;	
+	margin-bottom: 35px;
+}
+.register-attendees-attendee-tile{
+	background: rgba(0,0,0,.2);
+	border: 1px solid rgba(255,255,255,.07);
+	border-radius: 10px;
+	padding: 20px;
+	margin-bottom:  10px;
+	
+	label{
+		font-size: .9rem;
+		color: rgba(255,255,255,.7);
+	}
+	input{
+		width: 100%;
+		margin-right: 14px;
+		box-sizing: border-box;
+	}
+}
+
+.register-attendees-attendee-field-tile{
+	width: 25%; 
+	float: left;
+	padding-right: 14px;
+	box-sizing: border-box;	
+}

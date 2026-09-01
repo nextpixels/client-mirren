@@ -1,0 +1,41 @@
+.cta-form{
+	position: relative;
+	z-index: 3;
+	margin: 0 auto;
+	max-width: 400px;
+	padding: 15px;
+	margin-top: -30px;
+	
+	p{
+		margin-bottom: 0;
+	}
+	form{
+		background: none !important;
+		margin: 0;
+		padding: 0;
+		max-width: 100%;
+		text-align: left;
+	}
+	input::placeholder{
+		color: #fff;
+	}
+	input[type="text"],
+	input[type="email"]{
+		border: 1px solid rgba(255,255,255,.2);
+		border-radius: 0;
+		width: 100%;
+	}
+	
+	label{
+		display: none;
+	}
+	input[type="submit"]{
+		border: 0;
+		background-color: #59D3C7;
+		border-radius: 5px;
+		padding: 9px 18px 8px 18px;
+		margin-top: 20px;
+		color: #fff;
+	}
+}
+

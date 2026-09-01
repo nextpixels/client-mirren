@@ -1,0 +1,31 @@
+body #page-hero{
+	height: 380px;
+	min-height: 380px;
+	max-height: 380px;
+	overflow: hidden;
+}
+
+.site-content{
+	background: radial-gradient(ellipse at center top, #1a3c59 0, #142737 58%);
+}
+
+.blog-list{
+	h2, h2 a{
+		font-size: 1.1rem !important;
+		margin-bottom: 4px;
+	}
+	.blog-list-date{
+		display: none;
+	}
+	p{
+		margin-bottom: 0;
+	}
+	h2 a{
+		font-size: 1.8rem;
+	}
+}
+
+.blog-list-item{
+	margin-bottom: 60px;
+}
+

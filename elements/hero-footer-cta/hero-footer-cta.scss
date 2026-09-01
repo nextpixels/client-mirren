@@ -1,0 +1,29 @@
+#hero-footer-cta{
+	background-color: #222541;
+	/* background-image: url('elements/hero-footer-cta/hero-footer-cta-background.svg'); */
+	background: linear-gradient(to right,  #08c3c4 0%,#627bf8 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: cover;	
+	max-width: 1100px;
+	margin: 0 auto;
+	border-radius: 8px;
+	
+	h2{
+		color: #fff;
+		font-size: 1.3rem;
+		margin-bottom: 0;
+		font-weight: 300;
+		text-transform: none;
+	}
+	p{
+		color: #fff;
+	}
+	.btn-primary{
+		background: #F9B112;
+		font-weight: bolder;
+		font-size: 1.2rem;
+		/* border: 2px solid #fff; */
+	}
+	
+}

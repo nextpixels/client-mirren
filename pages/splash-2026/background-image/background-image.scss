@@ -1,0 +1,11 @@
+.splash-hero-image{
+	position: absolute;
+	left: -300px;
+	top: 0;
+}
+
+@media(max-width: 1450px){
+	.splash-hero-image{
+		left: -100px;
+	}
+}

@@ -1,0 +1,15 @@
+.home-intro-content{
+	background: #222541;
+	background: #0B161F;
+	
+	background-image: url('pages/home/intro/home-why-attend-background-2.jpg');
+	background-size: auto 100%;
+	background-position: right bottom;
+	background-repeat: no-repeat;
+}
+
+@media(max-width: 800px){
+	.home-intro-content{
+		background-size: cover;
+	}
+}

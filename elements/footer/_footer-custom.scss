@@ -1,0 +1,27 @@
+$background-color: #EBF7FE;
+$background-color: #0B161F;
+$link-color: #4D4D4D;
+$link-color: #fff;
+$font-size: 1rem;
+
+.site-footer{
+	background: $background-color;
+	font-size: $font-size;
+	color: #fff;	
+	
+	div, small{
+		color: #fff;
+		color: rgba(255,255,255,.8);
+	}
+	a,div{
+		font-size: $font-size;
+	}
+
+}
+
+.footer-navigation a,
+.footer-navigation a:visited,
+.footer-navigation a:hover{
+	color: $link-color;
+	font-weight: 700;
+}

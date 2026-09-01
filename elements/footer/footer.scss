@@ -1,0 +1,108 @@
+.site-footer{
+	padding-top: 30px;
+	padding-bottom: 15px;
+	position: relative;
+	z-index: 10;
+	
+	ul{
+		list-style-type: none;
+	}
+	a{
+		color: #fff;
+	}
+
+}
+
+.footer-social{
+	a,
+	a:hover,
+	a:visited,
+	.fa{
+		color: #fff;
+	}
+	.fa{
+		font-size: 32px;
+	}
+}
+
+.site-footer.text-invert{
+	color: rgba(255,255,255,.8);
+	
+	h1, h2, h3, h4, h2.h2-small,p,div,a,a:visited,a:hover{
+		color: rgba(255,255,255,.8);
+	}
+	.wp-text-edit{
+		color: rgba(255,255,255,.8);
+	}
+	h4{
+		font-weight: bolder;
+		color: #fff;
+		border-bottom: 1px solid rgba(255,255,255,.5);
+		display: inline-block;
+		padding-bottom: 5px;
+		padding-right: 20px;
+	}
+}
+
+.footer-logo-wrapper img{
+	max-width: 300px;
+}
+
+
+/* Cookie Banner */
+@media(min-width: 700px){
+	.cli-bar-container{
+		padding-right: 200px;
+	}
+}
+
+.footer-nav-horizontal{
+	text-align: right; 
+	
+	li{
+		display: inline-block;
+		margin-left: 20px;
+	}
+}
+@media(max-width: 1000px){
+	.footer-nav-horizontal{
+		text-align: center;
+
+		#menu-footer-menu{
+			margin-left: 0;
+		}
+	}
+	.footer-logo-wrapper{
+		text-align: center;
+	}
+}
+
+
+
+$background-color: #EBF7FE;
+$background-color: #0B161F;
+$link-color: #4D4D4D;
+$link-color: #fff;
+$font-size: 1rem;
+
+.site-footer{
+	background: $background-color;
+	font-size: $font-size;
+	color: #fff;	
+	
+	div, small{
+		color: #fff;
+		color: rgba(255,255,255,.8);
+	}
+	a,div{
+		font-size: $font-size;
+	}
+
+}
+
+.footer-navigation a,
+.footer-navigation a:visited,
+.footer-navigation a:hover{
+	color: $link-color;
+	font-weight: 700;
+}

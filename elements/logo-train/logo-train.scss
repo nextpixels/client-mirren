@@ -1,0 +1,38 @@
+/* Logo Train */
+
+	.logotrain{
+		/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#410c3b+0,110310+100 */
+		background: #410c3b; /* Old browsers */
+		background: -moz-radial-gradient(center, ellipse cover,  #410c3b 0%, #110310 100%); /* FF3.6-15 */
+		background: -webkit-radial-gradient(center, ellipse cover,  #410c3b 0%,#110310 100%); /* Chrome10-25,Safari5.1-6 */
+		background: radial-gradient(ellipse at center,  #410c3b 0%,#110310 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#410c3b', endColorstr='#110310',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+
+		.flex-tiles::after {
+			display: none;
+		}
+		.np-slideshow-change-slide{
+			display: inline-block;
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			margin: 0 3px;
+			background: rgba(255,255,255,.4);
+		}
+		.np-slideshow-change-slide.current{
+			background: rgba(255,255,255,.8);
+		}
+		.logotrain-row{
+			margin-bottom: 30px;
+			justify-content: center;  
+			min-height: 74px;
+		}
+		.logotrain-image-wrapper{
+		}
+		img{
+			max-height: 64px;
+			max-width: 84%;
+		}
+	}
+	
+/* Logo Train */

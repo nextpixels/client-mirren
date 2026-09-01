@@ -1,0 +1,87 @@
+.hero-content-text{
+	font-weight: bolder;
+	font-size: 1.1rem;
+}
+.page-main-dark div.strapline{
+	color: #30B4A7;
+}
+
+
+
+/*
+.rsvp-intro{
+
+	h2{
+		max-width: 400px;
+		margin: 0 auto;
+		padding-bottom: 25px;
+	}
+
+}
+*/
+
+.entry-content{
+	h2{
+		margin-bottom: 0;
+		padding-top: 75px;
+	}
+}
+
+.wp-block-column{
+	padding: 25px 30px 0 0;
+	
+	h3{
+		margin-top: 0;
+	}
+}
+
+.think-tank-tile{
+	background: rgba(0,0,0,.15);
+	border: 1px solid rgba(255,255,255,.1);
+	border-left: 6px solid #30B4A7;
+	border-radius: 6px;
+	padding: 13px;
+	
+	.strapline{
+		color: #30B4A7;
+		margin-bottom: 14px;
+	}
+	h2{
+		font-size: 1.1rem;
+		line-height: 1.3rem;
+		margin-bottom: 0;
+		padding-top: 0;
+	}
+	p{
+		margin-bottom: 0;
+	}
+	.text-accordion-body{
+		padding-left: 16px;
+	}
+	.p-mobile-standard{
+		padding-left: 0;
+		padding-right: 0;
+	}
+	
+}
+
+
+.think-tank-tile{
+	margin-bottom: 25px !important; 
+}
+
+.text-accordion{
+	margin-bottom: 15px;
+}
+
+/*
+.think-tank-meet-and-greet{
+	h2{
+		max-width: 300px;
+	}
+}
+*/
+
+.hide{
+	display: none;
+}

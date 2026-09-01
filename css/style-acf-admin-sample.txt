@@ -1,0 +1,10 @@
+//Add this to the child theme:
+
+@import "_variables.scss";
+
+.edit-post-visual-editor__content-area{
+	@import "style.scss";
+}
+
+@import "../../ergo/css/_wordpress-admin.scss";
+

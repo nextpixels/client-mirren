@@ -1,0 +1,56 @@
+.cta-form-wrapper{
+	background: linear-gradient(to bottom,  #203445 0%,#142737 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+	h2{
+		font-size: 1.6rem;
+		margin-bottom: 25px;
+	}
+}
+.cta-form{
+	position: relative;
+	z-index: 3;
+	margin: 0 auto;
+	max-width: 700px;
+	padding: 15px;
+	margin-top: -30px;
+	
+	p{
+		margin-bottom: 0;
+	}
+	form{
+		background: none !important;
+		margin: 0;
+		padding: 0;
+		max-width: 100%;
+		text-align: left;
+	}
+	input::placeholder{
+		color: #fff;
+	}
+	input[type="text"],
+	input[type="email"]{
+		border: 1px solid rgba(255,255,255,.2);
+		border-radius: 0;
+		width: 100%;
+		color: #fff;
+	}
+	
+	label{
+		display: none;
+	}
+	input[type="submit"]{
+		border: 0;
+		background-color: #EF9F27;
+		border-radius: 50px;
+		padding: 12px 50px;
+		margin-top: 20px;
+		color: #fff;
+	}
+}
+
+.wpcf7-submit{
+	display: block;
+}
+.wpcf7 form.sent .wpcf7-response-output{
+	border-color: #59D3C7;
+}

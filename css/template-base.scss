@@ -1,0 +1,35 @@
+@import "_normalize.scss";
+
+/* General */
+	html,body{
+		margin: 0;
+		padding: 0;
+		height: 100%;
+	}
+	body{
+		width: 100%;
+		overflow-x: hidden;
+	}
+/* General */
+
+/* Sticky Footer */
+	html, body {
+	  height: 100%;
+	  margin: 0;
+	}
+	body {
+	  display: flex;
+	  flex-direction: column;
+	}
+	.ergo-sticky-footer-page-wrapper {
+	  flex: 1 0 auto;
+	}
+	.ergo-sticky-footer-page-footer{
+	  flex-shrink: 0;
+	}	
+	.height-100{
+		height: 100%;
+	}
+/* Sticky Footer */
+
+@import "../../ergo/ergo-elements/ergo-header/_ergo-header.scss";

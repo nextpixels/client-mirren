@@ -1,0 +1,557 @@
+$darkblue: #000;
+$text-color: #000;
+$silver: #F2F2F2;
+$tile-background: #F2F2F2;
+$btn-background: #EF9F27;
+$btn-color: #fff;
+$btn-hover-color: #fff;
+$btn-radius: 10px;
+$input-text-background: #1F3D56;
+$input-text-border: 1px solid rgba(255,255,255,.1);
+$input-text-border-color: rgba(255,255,255,.1);
+$input-color: #000;
+
+:root{
+	--tec-color-text-primary: #fff;
+	--tec-color-text-primary-light: #fff;
+	--tec-color-accent-primary: #EF9F27;
+	--tec-color-button-primary-hover: #EF9F27;
+	
+	--tec-border-radius-default: 4px;
+	
+	--tec-color-text-primary: #fff;
+	--tec-color-background: rgba(0,0,0,.3);
+	--tec-color-border-secondary: rgba(0,0,0,0);
+	--tec-color-text-secondary: rgba(255,255,255,.75);
+
+}
+
+
+
+
+@media(min-width: 900px){
+	
+.tribe-events-single-event-description{
+	display: block;
+	position: absolute;
+	margin-top: 10px;
+	z-index: 5;
+}	
+
+.single-tribe_events #pricing-wrap{
+	height: 200px;
+    background: none;
+}
+.single-tribe_events #pricing-wrap.pricing-virtual{
+	height: 150px;
+}
+
+.tribe-tickets__tickets-wrapper{
+	box-sizing: border-box;
+	float: right;
+	max-width: 546px;		/* Width of the 3 columns */
+	margin-right: 60px;		/* Easiest way of centering the num tickets selectors to match columns above */
+}
+
+.tribe-tickets__tickets-item-quantity{
+	width: 182px; /* 150px column width + 32px of padding to match the columns above */
+	text-align: center;
+	display: inline-block !important;
+}
+.event-tickets .tribe-tickets__form input[type=number].tribe-tickets__tickets-item-quantity-number-input{
+	color: $text-color;
+}
+.event-tickets .tribe-tickets__tickets-footer-quantity-number{
+	color: $text-color;
+}
+
+.tribe-tickets__tickets-form{
+	background: none !important;
+}
+.tribe-tickets__tickets-item-extra, .tribe-tickets__tickets-item-content-title{
+  align-self: auto !important;
+
+  .tribe-tickets__tickets-item-extra-available{
+    display: none !important;
+  }
+}
+
+.tribe-tickets__registration-grid{
+  grid: none !important;
+}
+
+.page-tribe-attendee-registration .entry-content h3{
+	margin: 0;
+}
+
+.tribe-tickets__attendee-tickets-form{
+  h3.tribe-common-h5{
+    color: $darkblue;
+    
+    font-weight: 700;
+  }
+
+  .tribe-tickets__attendee-tickets-container{
+    background-color: $tile-background;
+    padding: 15px !important;
+    border-radius: 10px !important;
+  }
+}
+
+
+.tribe-tickets__form.tribe-tickets__attendee-tickets-item{
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  padding-bottom: 0px !important;
+
+  .tribe-tickets__attendee-tickets-item-header{
+    width: 100%;
+    order: -3;
+  }
+
+  .tribe-tickets__form-field{
+    width: 25% !important;
+    display: flex;
+    flex-direction: column !important;
+    padding-right: 10px !important;
+	/*
+    @include media-breakpoint-down(md){
+      width: 100% !important;
+    }
+*/
+    label{
+      flex: 0 !important;
+    }
+  }
+}
+
+.tribe-tickets__iac-field--name{
+ /*  order: -2; */
+  label{
+    &:before{
+      content: 'First ';
+      display: inline;
+    }
+  }
+}
+
+
+
+  #tribe-tickets__tickets-form{
+    position: relative !important;
+  }
+
+
+/* Register Grid Page */
+  #pricing-wrap{
+    position: relative;
+
+    .group-discount-message{
+      position: absolute;
+      right: 35px;
+      font-size: 14px;
+      top: calc(100% + 48px);
+    }
+  }
+  .register-terms{
+	.col-400{
+		width: 365px;
+		padding-right: 25px;
+		box-sizing: border-box;
+	}
+  }
+/* Register Grid Page */
+
+
+  .tribe-tickets__tickets-item-quantity-number-input{
+    font-weight: 800;
+  }
+
+  .tribe-common.event-tickets.tribe-tickets__tickets-wrapper{
+	/*
+    position: absolute;
+	*/
+    width: 100%;
+    right: 0;
+    top: 100%;
+
+    >#tribe-tickets__tickets-form{
+      position: inherit !important;
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      flex-wrap: wrap !important;
+      max-width: 100% !important;
+
+      .tribe-tickets__tickets-item{
+        padding: 0 !important;
+        border: 0 !important;
+        /* width: 33%; */
+        /* display: flex !important; */
+        align-items: center !important;
+        justify-content: center !important;
+		
+        &:first-of-type{
+         /*  margin-left: 50% !important; */
+        }
+
+        .tribe-tickets__tickets-item-extra, .tribe-tickets__tickets-item-content-title{
+          display: none !important;
+        }
+      }
+
+      .tribe-tickets__tickets-footer{
+        margin-left: auto;
+        margin-top: 15px;
+        padding-right: 25px;
+      }
+    }
+  }
+/* } */
+
+.tribe-tickets__mini-cart, .tribe-tickets__tickets-footer-total{
+  display: none !important;
+}
+
+.tribe-tickets__registration-actions{
+  margin-top: 0px !important;
+}
+
+.tribe-tickets__attendee-tickets-footer{
+
+	button.tribe-common-c-btn,
+	button.tribe-common-c-btn:hover{
+    display: inline-block;
+    padding: 9px 26px;
+    font-size: 1.15rem !important;
+    background-color: $btn-background !important;
+    color: $btn-color;
+    border-radius: $btn-radius !important;
+    text-align: center;
+    text-decoration: none !important;
+    font-weight: bold;
+	padding: 12px 18px;
+
+    &[disabled]{
+      opacity: 0.5;
+      background-color: $btn-background !important;
+    }
+
+
+
+    &:hover, &:focus {
+        &:after {
+            transform: translateX(5px);
+        }
+        opacity: 1;
+        color: $btn-hover-color;
+        background-color: $darkblue !important;
+
+        &[disabled]{
+          opacity: 0.5;
+          background-color: $btn-background !important;
+        }
+    }
+  }
+}
+
+
+
+
+.tribe-tickets__tickets-form{
+  border: none !important;
+  padding: 0px !important;
+  margin: 65px 0px 35px 0px !important;
+
+  .tribe-tickets__tickets-footer{
+    border-top: none !important;
+
+	/* Order Button */
+		button.tribe-common-c-btn,
+		button.tribe-common-c-btn:hover{
+		  display: inline-block;
+		  padding: 9px 26px;
+		  font-size: 1.15rem !important;
+		  background-color: $btn-background !important;
+		  color: $btn-color;
+		  border-radius: $btn-radius !important;
+		  text-align: center;
+		  text-decoration: none !important;
+		  font-weight: bold;
+
+		  &[disabled]{
+			opacity: 0.5;
+			background-color: $btn-background !important;
+		  }
+
+		  &:hover, &:focus {
+			  &:after {
+				  transform: translateX(5px);
+			  }
+			  opacity: 1;
+			  color: $btn-hover-color;
+			  background-color: $btn-background !important;
+
+			  &[disabled]{
+				opacity: 0.5;
+				background-color: $btn-background !important;
+			  }
+		  }
+	 /* Order Button */
+    }
+  }
+
+  h2.tribe-common-h4{
+    display: none !important;
+  }
+
+  .tribe-common-h7{
+    font-weight: 700 !important;
+  }
+
+  .tribe-formatted-currency-wrap{
+  }
+}
+
+
+
+
+
+.woocommerce-order{
+  .tribe-event-details{
+    >em{
+      display: none !important;
+    }
+  }
+
+  .woocommerce-table--order-details{
+    thead{
+      display: none !important;
+    }
+
+    tfoot{
+      tr:first-of-type{
+        display: none !important;
+      }
+    }
+  }
+}
+
+
+}
+
+.tribe-tickets__tickets-item-extra-available{
+	display: none;
+}
+
+#coupon_code{
+	width: 130px !important;
+}
+
+.tribe-tickets__registration{
+	/* padding-top: 100px !important; */
+}
+.tribe-tickets__registration-summary{
+	display: none;
+}
+@media(min-width: 900px){
+	.tribe-link-view-attendee{
+		position: absolute;
+		bottom: 0;
+	}
+}
+.return-to-shop{
+	display: none;
+}
+
+
+/* Attendees Page */
+	body.page-tribe-attendee-registration .tribe-tickets__registration {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	.tribe-tickets__registration-event{
+		max-width: 100% !important;
+		padding-right: 0 !important;
+	}
+	#tribe-tickets__registration-form{
+		padding-bottom: 50px;
+	}
+	.tribe-tickets__iac-field--name{
+	  order: -2;
+	  label{
+		&:before{
+		  content: 'First ';
+		  display: inline;
+		}
+	  }
+	}
+	.page-tribe-attendee-registration .tribe-tickets__registration-footer{
+		padding-top: 25px;
+	}
+	
+	
+
+	.tribe-link-view-attendee{
+		display: none;
+	}
+	.tribe-tickets__form.tribe-tickets__attendee-tickets-item{
+		background-color: rgba(255,255,255,.05) !important;
+		border: 0 !important;
+	}
+	.tribe-tickets__form-field-input,
+	.tribe-tickets__form-field-input:focus,
+	.tribe-common-form-control-text__input tribe-tickets__form-field-input:focus{
+		background: $input-text-background;
+		border: $input-text-border;
+		border-color: $input-text-border-color;
+		color: $input-color;
+	}
+	.tribe-tickets__form tribe-tickets__attendee-tickets-item.tribe-tickets__attendee-tickets-item--has-required-meta:focus,
+	.tribe-tickets__attendee-tickets input[type=email],
+	.tribe-tickets__attendee-tickets input[type=text],
+	.tribe-tickets__attendee-tickets input[type=email]:focus,
+	.tribe-tickets__attendee-tickets input[type=text]:focus,
+	{
+			background: $input-text-background;
+		border: $input-text-border;
+		border-color: $input-text-border-color;
+		color: $input-color;
+	}
+	/* These appear to be some sort of odd spacer before the attendee fields */
+		.entry .entry-content .event-tickets .tribe-tickets__attendee-tickets-item:after,
+		.entry .entry-content .event-tickets .tribe-tickets__attendee-tickets-item:before,
+		.event-tickets .tribe-tickets__attendee-tickets-item:after,
+		.event-tickets .tribe-tickets__attendee-tickets-item:before {
+			display: none !important;
+		}
+	/* Cart summary on mobile -- doesn't seem to be necessary */	
+		#tribe-tickets__mini-cart{
+			display: none !important;
+		}
+		
+	.tribe-common .tribe-common-c-btn,.tribe-common a.tribe-common-c-btn{
+		color: #fff;
+	}	
+	.tribe-tickets__iac-email-disclaimer,
+	.tribe-common-b2{
+		padding-bottom: 0 !important;
+	}	
+	body.page-tribe-attendee-registration .event-tickets .tribe-tickets__registration-back-to-cart, 
+	body.page-tribe-attendee-registration .tribe-common .tribe-tickets__registration-back-to-cart{
+		color: #59D3C7 !important;
+	}
+	body.page-tribe-attendee-registration .event-tickets .tribe-tickets__registration-back-to-cart:before, 
+	body.page-tribe-attendee-registration .tribe-common .tribe-tickets__registration-back-to-cart:before{
+		content: "" !important;
+	}	
+	.tribe-tickets__footer-messages{
+		background: $tile-background;
+		padding: 30px !important;
+		border-radius: 10px;
+		
+		p{
+			margin-bottom: 15px;
+		}
+	}
+	/* Hide this, we put in our own text */
+	.tribe-tickets__notice__attendee-registration{
+		display: none !important;
+	}
+/* Attendees Page */
+
+/* Confirmation Page */
+.tribe-attendee-meta{
+	width: 100%;
+}
+.woocommerce{
+	padding-bottom: 50px;
+}
+/*
+.woocommerce .coupon .input-text,
+.woocommerce .quantity input,
+.woocommerce .select2-selection {
+	background: $input-text-background !important;
+	color: $input-color !important;
+}*/
+.woocommerce table.shop_table td.product-total{
+	vertical-align: bottom;
+}
+.woocommerce-order dd{
+	margin: 0;
+}
+.woocommerce-order-overview.woocommerce-thankyou-order-details.order_details{
+	padding-left: 0;
+}
+
+
+/* Credit Card Fields */
+	.wc-stripe-elements-field{
+		background: $input-text-background;
+		border: $input-text-border;
+		border-color: $input-text-border-color !important;
+		color: $input-color;
+		padding: 10px 14px;
+		background: #fff;
+		
+	}
+	#payment .payment_box{
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	
+	/*
+	#payment .wc-stripe-elements-field::placeholder{
+		color: rgba(255,255,255,.7);
+	}
+	#payment .ElementsApp .InputElement{
+		color: #fff !important;
+	}
+	#payment .ElementsApp .InputElement.is-invalid{
+		color: purple !important;
+	}
+	*/
+
+/* Credit Card Fields */
+
+/* Loading Overlay */
+	body.page-tribe-attendee-registration .tribe-common-c-loader,
+	.tribe-common-c-loader{
+		background-color: rgba(0,0,0,.2) !important;
+	}
+	div.blockOverlay {
+	  background-color: #000 !important;
+	}
+/* Loading Overlay */
+
+#tribe-tickets__notice__attendee-registration{
+	background: none;
+	padding: 0 0 25px 0;
+	padding-right: 50px;
+	line-height: 1.3 !important;
+}
+
+
+/* Quantity Select */
+.event-tickets .tribe-tickets__tickets-item-quantity-add,
+.event-tickets .tribe-tickets__tickets-item-quantity-remove,
+body .event-tickets .tribe-tickets__form input[type=number].tribe-tickets__tickets-item-quantity-number-input{
+	color: $text-color;
+}
+
+/* Buttons */
+.tribe-common-c-btn--small,
+.tribe-common-c-btn--small:hover,
+.tribe-common button.tribe-common-c-btn--small,
+.tribe-common button.tribe-common-c-btn--small:hover,
+.event-tickets .tribe-tickets__tickets-buy.tribe-common-c-btn,
+.event-tickets .tribe-tickets__tickets-buy.tribe-common-c-btn:hover,
+.event-tickets .tribe-tickets__tickets-buy.tribe-common-c-btn:focus{
+	background: $btn-background;
+	color: $btn-color;
+	padding: 12px 18px !important;
+	border-radius: 10px !important;
+}

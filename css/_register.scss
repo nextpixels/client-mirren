@@ -1,0 +1,191 @@
+$tile-background: #F2F2F2;
+$tile-font-color: #000;
+
+$btn-background: #EF9F27;
+$btn-color: #fff;
+$btn-hover-color: #fff;
+$btn-radius: 50px;
+
+.hero-register{
+	padding-bottom: 50px;
+	text-align: center;
+}
+
+.theme-ergo{
+
+	/* Table Header */
+	
+		/* In Person */
+			.tab-content-in-person .tab-content-header.col-lead{
+				background: #56BFC3;
+			}
+			.tab-content-in-person .register-row{
+				border-left: 4px solid #56BFC3;
+			}
+			a.tab.tab-in-person{
+				background: #56BFC3;
+			}	
+			
+		/* Virtual */
+			.tab-content-virtual .tab-content-header.col-lead{
+				background:  #399FA2;
+			}
+			a.tab.tab-virtual{
+				background: #399FA2;
+			}
+			.tab-content-virtual .register-row{
+				border-left: 4px solid  #399FA2;
+			}
+		
+		
+		.register-row.row-pricing{
+			border: 0;
+		}
+		.tab-andor-label{
+			background: #308487;
+		}
+		
+		.tab-content-header-col-1{
+			background: #818DF6;
+		}
+		.tab-content-header-col-2{
+			background: #697CEC;
+		}
+		.tab-content-header-col-3{
+			background: #5566EE;
+		}
+
+	/* Row Coloring */
+		.tab-content-in-person .register-row:nth-child(even),
+		.tab-content-virtual .register-row:nth-child(even){
+			background: #1D384F;
+		}
+		.tab-content-in-person .register-row:nth-child(odd),
+		.tab-content-virtual .register-row:nth-child(odd){
+			background: #233E55;
+		}
+		.tab-content-in-person .register-row.row-pricing,
+		.tab-content-virtual .register-row.row-pricing{
+			background: none !important;
+		}
+	
+	.pricing-lead-label{
+		display: none;
+	}
+	
+}
+
+.register-highlight{
+	background: #1D384F;
+	border-left: 5px solid #56BFC3;
+	border-radius: 5px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+/* Tickets Quantity Row */
+.tribe-tickets__tickets-item-quantity{
+		width: 150px;
+}
+/* Tickets Quantity Row */
+
+/* Hide Special Pricing Row */
+.row-special-pricing{
+	display: none;
+}
+/* Hide Special Pricing Row */
+
+/* Mobile */
+	.theme-ergo{
+		
+		.tab-content-mobile{
+			background: $tile-background;
+			border-radius: 5px;
+			
+			h3{
+				color: $tile-font-color;
+			}
+		}
+		.register-tile-mobile{
+			background: $tile-background;
+		}
+		
+		@media(max-width: 900px){
+			.event-tickets .tribe-tickets__tickets-form{
+				max-width: 100%;
+			}
+		}
+	}
+/* Mobile */
+
+
+/* Highlight Box at the top of the page */
+	.registration-highlight-box{
+		background: #3F4685; 
+		border-radius: 5px; 
+		text-align: center;
+		margin-bottom: 20px;
+		padding: 20px;
+	}
+	.single-tribe_events .registration-highlight-box h3,
+	body.single-tribe_events .registration-highlight-box p,
+	.single-tribe_events .registration-highlight-box{
+		color: #fff;
+	}
+	.single-tribe_events .registration-highlight-box p{
+		margin-bottom: 0;
+	}
+/* Highlight Box at the top of the page */
+
+
+
+/* Quantity Selectors */
+	.page-secondary .tribe-tickets__form .register-row-quantity{
+		background: #3F4685;
+	}
+	.single-tribe_events .site-content .tribe-tickets__form .register-row-quantity div{
+		color: #fff;
+	}
+	body .event-tickets .tribe-tickets__form input[type=number].tribe-tickets__tickets-item-quantity-number-input{
+		color: #fff;
+	}
+	@media(max-width: 900px){
+		body .event-tickets .tribe-tickets__form input[type=number].tribe-tickets__tickets-item-quantity-number-input{
+			color: #000;
+		}
+	}
+	.single-tribe_events .site-content .register-row-quantity-prompt{
+		color: #fff;
+	}
+
+	.event-tickets .tribe-tickets__tickets-item-quantity-remove,
+	.event-tickets .tribe-tickets__tickets-item-quantity-add{
+		color: #fff;
+	}
+	@media(max-width: 900px){
+		.event-tickets .tribe-tickets__tickets-item-quantity-remove,
+		.event-tickets .tribe-tickets__tickets-item-quantity-add{
+			color: #000;
+		}
+	}
+	#pricing-wrap.pricing-virtual .event-tickets .tribe-tickets__tickets-item-quantity-remove,
+	#pricing-wrap.pricing-virtual .event-tickets .tribe-tickets__tickets-item-quantity-add{
+		color: #000;
+	}
+/* Quantity Selectors */
+
+
+.single-tribe_events .site-content .row-buttons .btn-primary{
+	color: #fff;
+}
+
+.single-tribe_events .site-content .tribe-tickets__form 
+.register-row-quantity div:not(.register-row-quantity-prompt) {
+    color: #000;
+}
+
+
+/* Virtual Pass Color Mods */
+.event-tickets .tribe-tickets__tickets-item-quantity-remove{
+	
+}

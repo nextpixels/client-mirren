@@ -1,0 +1,8 @@
+@import "_variables.scss";
+
+.editor-styles-wrapper{
+	@import "style.scss";
+	@import "../theme-mirrenlive-2026/theme-mirrenlive-2026.scss";
+}
+
+@import "../../ergo/css/_wordpress-admin.scss";

@@ -1,0 +1,298 @@
+$headerCollapseWidth: 1200px;
+$headerHeight: 70px;
+$navItemSpacing: 30px;
+$dropdownWidth: 300px;
+$dropdownBackgroundColor: #2e2e2e;
+
+
+.main-navigation {
+	clear: both;
+	display: block;
+	width: 100%;
+	text-align: right;
+	
+	ul {
+		display: none;
+		list-style: none;
+		margin: 0;
+		padding-left: 0;
+	}
+	
+	a{
+		cursor: pointer;
+	}
+	
+	/* First Level Links */
+		@media(min-width: $headerCollapseWidth){
+			#primary-menu > li{
+				padding-left: $navItemSpacing;
+			}
+		}
+		
+		
+		/* Add a dropdown caret if sub-menu is present */
+			.nav-menu > li.menu-item-has-children > a:after {
+				content: "\f107";
+				font-family: 'FontAwesome';
+				font-weight: 100;
+				font-size: 17px;
+				margin-right: 12px;
+				position: relative;
+				display: inline-block;
+				top: 0;
+				margin: 0 0 0 6px;
+			}
+	
+	/* Dropdowns */
+		ul ul {
+			position: absolute;
+			top: 100%;
+			left: -999em;
+			z-index: 99999;
+		}
+
+		ul ul ul {
+			left: -999em;
+			top: 0;
+		}
+
+		ul ul li:hover > ul,
+		ul ul li.focus > ul {
+			left: 100%;
+		}
+	
+		ul ul li{
+			border-bottom: 1px solid #373737;
+		}
+		
+		ul ul a {
+			width: $dropdownWidth;
+			padding: 10px 0 10px 12px;
+		}
+	/* Dropdowns - End */	
+	
+	
+	
+	
+	li a{			/* Vertically center links */
+		display: flex;
+		height: $headerHeight;
+		align-items: center;
+	}
+	.sub-menu li a{
+		height: auto;
+	}
+	
+
+
+	
+	@media(max-width: $headerCollapseWidth){
+		ul ul a {
+			width: 100%;
+		}
+	}
+
+	ul li:hover > ul,
+	ul li.focus > ul {
+		left: auto;
+	}
+
+	li {
+		position: relative;
+		display: inline-block;
+	}
+
+	a {
+		display: block;
+		text-decoration: none;
+	}
+	
+	.sub-menu{
+		text-align: left;
+		padding: 0;
+		background: $dropdownBackgroundColor;
+	}
+	
+	
+}
+
+
+/* Mobile Menu */
+/*
+	.menu-toggle .navigation-close{
+		display: none;
+	}
+	.toggled .menu-toggle .navigation-close{
+		display: block;
+	}
+	*/
+	
+
+	.main-navigation.toggled ul:not(.sub-menu) {
+		display: block;
+	}
+	@media screen and (min-width: $headerCollapseWidth) {
+		.main-navigation ul {
+			display: block;
+		}
+	}
+
+/* Mobile Menu Toggle */
+	.menu-toggle{
+		display: block;
+		color: #000;
+		background: none;
+		border: 0;
+		font-size: 24px;
+		padding: 0;
+		position: relative;
+		z-index: 10000;
+		position: fixed;
+		right: 20px;
+		top: 12px;
+		
+		background: #fff;
+		right: 0;
+		top: 0;
+		width: 60px;
+		height: 60px;
+		
+		
+		.fa-bars{
+			color: #000;
+		}
+		.fa-times{
+			display: none;
+		}
+	}
+	
+	.toggled .menu-toggle{
+		.fa-times{ display: block; }
+		.fa-bars{ display: none; }
+	}
+	
+	@media screen and (min-width: $headerCollapseWidth) {
+		.menu-toggle {
+			display: none;
+		}
+		.page-scrolled-500 .menu-toggle{
+			display: block;
+		}
+	}
+/* Mobile Menu Toggle */
+
+
+
+@mixin mobile-navigation{
+	#primary-menu{
+			background: #fff;
+			position: fixed;
+			overflow: auto;
+			height: 100%;
+			top: 0;
+			right: 0;
+			width:100%;
+			max-width: 300px;
+			
+			padding-top: 60px;
+			padding-bottom: 30px;
+			padding-left: 20px;
+			
+			ul{
+				text-align: left;
+				padding-bottom: 0;
+				padding-top: 10px;
+				right:0;
+				top: 0;
+				width: 100%;
+				max-width: 300px;
+				height: 100%;
+				padding-left: 20px;
+				box-sizing: border-box;
+			}
+			li{
+				display: block;
+				clear: both;
+				text-align: left;
+				padding: 0 0 16px 0;
+				box-sizing: border-box;
+			}
+			a{
+				padding-top: 2px;
+				padding-bottom: 2px;
+				color: #000;
+			}
+			
+			
+
+			.sub-menu li{
+				float: none;
+			}
+		}
+		
+		
+		.main-navigation{
+			li a{
+				height: auto;
+			}
+			ul ul li{
+				border: 0;
+			}	
+			.sub-menu{
+				display: none;
+				position: relative;
+				float: none;
+				left: 0;
+			}
+			ul ul li:hover > ul,
+			ul ul li.focus > ul {
+				left: 0;
+			}
+			
+		}
+}
+
+
+/* Mobile */
+	@media(max-width: $headerCollapseWidth){ 
+		@include mobile-navigation;
+	}
+/* Mobile */
+
+/* Page Scrolled */
+	.menu-toggle-background{
+		position: fixed; 
+		right: 0; 
+		top: 0; 
+		width: 60px; 
+		height: 60px; 
+		background: #811A74;
+	}
+	.menu-toggle-background{
+		display: none;
+	}
+	.page-scrolled-500 .menu-toggle-background{
+		display: block;
+	}
+
+	.page-scrolled-500{
+		@include mobile-navigation;
+	}
+	
+	.page-scrolled-500 #primary-menu{
+		display: none;
+	}
+	.page-scrolled-500 .main-navigation.toggled #primary-menu{
+		display: block;
+		z-index: 105;
+		box-shadow: 1px 1px 20px rgba(0,0,0,.2);
+	}
+	.page-scrolled-500 .main-navigation .sub-menu{
+		background: #142737;
+	}
+	.page-scrolled-500 #primary-menu a{
+		color: #fff;
+	}
+/* Page Scrolled */
+
+@import "_header-custom.scss";

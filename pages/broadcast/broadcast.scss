@@ -1,0 +1,467 @@
+@import "../../css/_variables.scss";
+
+$button-font-color: #fff;
+$button-background-color: #EF9F27;
+
+.broadcast-hero{
+	padding-top: 100px;
+	padding-bottom: 0;
+	overflow: hidden;
+}
+
+.virtual-key{
+	display: none;
+}
+
+
+/* Login Forms */
+section.broadcast-hero {
+    padding: 150px 0 50px;
+    min-height: calc(100vh - 420px);
+}
+.broadcast-hero-main-content {
+  position: relative;
+}
+.broadcast-hero-main-content h1 {
+    font-size: 5.6rem;
+    line-height: 1;
+}
+.broadcast-hero-main-content p,
+.broadcast-hero-main-content a{
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+.post-event .broadcast-hero-main-content h1 {
+    font-size: 3rem;
+}
+
+.broadcast-name-email-wrap {
+    position: absolute;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.broadcast-hero-main-content .broadcast-name-email-wrap form.wpcf7-form > p span.wpcf7-form-control-wrap > input {
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 8px;
+  color: #000;
+  font-size: 15px;
+  font-weight: normal;
+  padding: 8px;
+  border-radius: 9px;
+  background: #ddd;
+  border: none;
+  
+}
+.broadcast-hero-main-content .broadcast-name-email-wrap form.wpcf7-form > p input.wpcf7-submit {
+  	display: block;
+    margin-top: 18px;
+    border-radius: 30px;
+    background: transparent;
+    color: $button-font-color;
+    font-weight: 400;
+    padding: 12px 50px;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
+    min-height: auto;
+    border: 2px solid #fff;
+    cursor: pointer;
+	background: $button-background-color;
+}
+
+.broadcast-hero-main-content .broadcast-name-email-wrap form.wpcf7-form > p {
+    margin-bottom: 0;
+}
+
+.broadcast-hero-main-content .broadcast-name-email-wrap form.wpcf7-form.sent > p {
+  display: none;
+}
+.broadcast-hero-main-content .broadcast-name-email-wrap form.wpcf7-form:not(.sent) .wpcf7-response-output {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.broadcast-hero-main-content .broadcast-name-email-wrap form.wpcf7-form .wpcf7-response-output {
+  border-color: #6975FC;
+  font-weight: bold;
+  position: absolute;
+  top: -35px;
+  margin-left: 0;
+  transition-delay: 1s;
+  transition-property: opacity;
+}
+.broadcast-hero-main-content .form-wrap-password {
+  opacity: 0;
+  visibility: hidden;
+  margin-bottom: 50px;
+  margin-top: 50px;
+  transition: all 2s ease;
+}
+.broadcast-hero-main-content .form-wrap-password.show-form {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 2s;
+  transition-property: opacity;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item {
+  margin: 0;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item form {
+  position: relative;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item form p {
+  display: block;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item form p:first-of-type {
+  display: none;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item form input:not([type="submit"]) {
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 8px;
+  color: $form-input-color;
+  font-size: 15px;
+  font-weight: normal;
+  padding: 8px;
+  border-radius: 0;
+  background: $form-input-bg;
+  border: none;
+  border: 1px solid $form-input-border-color;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item form input[type="submit"] {
+    display: block;
+    margin-top: 18px;
+    border-radius: 30px;
+    background: $button-background-color;
+    color: $button-font-color;
+    font-weight: 400;
+    padding: 12px 50px;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
+    min-height: auto;
+    border: 2px solid transparent;
+}
+.broadcast-hero-main-content .form-wrap-password .gdlr-item form .wpcf7-response-output {
+  position: absolute;
+  bottom: 38px;
+  left: 119px;
+  margin: 0;
+  max-width: 400px;
+  line-height: 23px;
+  border-color: #6975FC;
+  transition-delay: 1s;
+  transition-property: opacity;
+}
+
+.broadcast-hero-main-content.wrong-password-sent .broadcast-name-email-wrap {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.broadcast-hero-main-content.wrong-password-sent .form-wrap-password {
+    opacity: 1;
+    visibility: visible;
+}
+/* Login Forms */
+
+
+
+/* Tabs */
+.tab-20241002,
+.tab-20241009,
+.tab-20241010{
+	h3,
+	.day-navigation-date-wrapper,
+	.day-navigation-date{
+		text-align: center;
+	}
+}
+.day-navigation-link.tab-small.tab-20241016{
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+.tab-20241016 .day-navigation-date-wrapper{
+	display: none;
+}
+/* Tabs */
+
+
+/* Taken from broadcast.php page */
+
+#content .broadcast-intro-top-header input.button.logout {
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-size: 16px;
+    cursor: pointer;
+}
+.broadcast-intro-top-header p.support-wrap a {
+    color: #fff;
+    font-weight: 400;
+    font-size: 16px;
+	text-decoration: none;
+}
+.broadcast-intro-content {
+	text-align: center;
+}
+#page #content .broadcast-intro-content > h1 {
+    margin-bottom: 5px;
+    font-size: 40px;
+	text-transform: none;
+	padding-bottom: 20px;
+}
+#page #content .broadcast-intro-content > h3 {
+    margin-bottom: 30px;
+    font-size: 25px;
+}
+.broadcast-intro-content .columns-fluid .col-6 {
+    padding: 0 15px;
+}
+.client_area .banner-wrap {
+	float: left;
+}
+.client_area .banner-wrap img {
+    max-width: 100%;
+}
+.client_area .banner-wrap:first-of-type {
+    width: 23%;
+}
+.client_area .banner-wrap:nth-of-type(2) {
+    width: 52%;
+    margin-right: 1%;
+    margin-left: 1%;
+}
+.client_area .banner-wrap:last-of-type {
+    width: 23%;
+}
+div#important-message {
+    display: inline-block;
+    padding: 20px 0;
+    width: 100%;
+    text-align: center;
+}
+div#important-message p {
+	font-size: 1.3em;
+}
+.page-id-1692 .row-time:not(.row-items-1) .session-tile-header {
+    min-height: 220px;
+}
+.session-tile-header h4 {
+    margin-bottom: 7px;
+}
+.row-items-1 .session-tile-header h4 {
+    margin-right: 280px;
+}
+.page-id-1692 .row-time:not(.row-items-1) .session-tile-header-footer {
+    width: 51px;
+    margin-right: 8px;
+    float: left;
+    font-size: 11px;
+    line-height: 17px;
+    position: static;
+    padding: 0;
+}
+.session-tile-header-footer{
+	width: 100% !important;
+}
+.session-tile-header-footer .col.col-50.vertical-center img {
+    display: none;
+}
+.buttons-box {
+    box-sizing: border-box;
+    display: flex;
+}
+@media(min-width: 900px){
+	.buttons-box {
+		float: right;
+		float: left;
+		max-width: 260px;
+		width: calc(100% - 60px);
+	}
+}
+
+.row-items-1 .buttons-box {
+    float: right;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+.button-wrap {
+    float: left;
+    margin-left: auto;
+    text-align: center;
+	padding-right: 5px;
+}
+.button-wrap:last-of-type {
+	margin-left: 5px;
+}
+
+.buttons-box .button-wrap .btn.btn-primary,
+.session-tile-header a.session-detail-link,
+.buttons-box .button-wrap.button-wrap-disabled a.button-disabled{
+    display: inline-block;
+    margin: 0 auto 4px;
+    padding: 3px 10px;
+	font-size: .8rem;
+    float: none;
+    text-align: center;
+    border: none;
+    box-sizing: border-box;
+	white-space: nowrap;
+	
+	
+}
+.buttons-box .button-wrap p.link-description {
+    font-size: 10px;
+    line-height: 12px;
+    color: #fff;
+    margin-top: 0px;
+    display: block;
+    text-align: center;
+	width: auto;
+}
+.buttons-box .button-wrap.button-wrap-disabled {
+    cursor: no-drop;
+}
+.buttons-box .button-wrap.button-wrap-disabled a{
+	background: #142737;
+}
+.buttons-box .button-wrap.button-wrap-disabled a.button-disabled {
+    pointer-events: none;
+    background: #A0A0A0;
+	/*
+	background: #3FB0EA;
+	color: rgba(255,255,255,.7);
+	*/
+}
+.row-items-3 .hideable{
+	display: none;
+}
+.session-tile-header a.session-detail-link{
+	/* background: #142737; */
+	
+	span{
+		font-size: .8rem;
+		color: #fff;
+	}
+}
+@media screen and (max-width: 800px) {
+    .client_area .banner-wrap {
+        width: 100% !important;
+        margin: 10px 0 !important;
+    }
+}
+@media screen and (max-width: 500px) {
+    .row-items-1 .buttons-box {
+        top: unset;
+        bottom: 0px;
+        right: 2px;
+    }
+    .row-items-1 .session-tile-header h4 {
+        margin-right: 0;
+        margin-bottom: 50px;
+    }
+}
+/* Taken from broadcast.php page (end) */
+
+
+
+/* Intro */
+	#broadcast-intro{
+		.text-accordion-title{
+			background: rgba(0,0,0,.1);
+			padding: 7px 10px 10px 10px;
+			color: #fff;
+		}
+		.text-accordion-body{
+			padding-left: 30px;
+			background: rgba(0,0,0,.05);
+		}
+		span{
+			color: #fff;
+		}
+	}
+
+/* Intro */
+
+
+/* Day One */
+.row-time-20241009081500 .row-time-time{
+	display: none;
+}
+.page-id-1692 .row-time:not(.row-items-1).row-time-20241009081500 .session-tile-header{
+	min-height: 46px;
+	height: 46px;
+}
+.row-time-20241009083000 .buttons-box .button-wrap-watch-recording a.btn.btn-primary{
+	display: none;	
+}
+
+/* Day Two */
+.row-time-20241010093000 .row-time-time{
+	display: none;
+}
+.page-id-1692 .row-time:not(.row-items-1).row-time-20241010093000 .session-tile-header{
+	min-height: 46px;
+	height: 46px;
+}
+
+
+
+/* Mobile */
+.day-header-mobile-20241016 .day-header-mobile-date{
+	display: none;
+}
+.track-body-mobile-time-20241009081500{
+	display: none;
+}
+/* Mobile */
+
+/* Mobile - Day 2 */
+.track-body-mobile-time-20241010093000{
+	display: none;
+}
+
+
+/* Conference Partner Logos Section */
+	.partners{
+		background: #fff;
+		border-radius: 10px;
+		
+		
+		h2{
+			margin-bottom: 5px;
+			font-size: 2rem;
+		}
+		p{
+			margin-bottom: 15px;
+		}
+	}
+	.partners.contain-1200{
+		max-width: 1100px;
+	}
+	.partners.p-t-75{
+		padding-top: 25px;
+	}
+	.partners.p-b-75{
+		padding-bottom: 15px;
+	}
+	.partners-section{
+		background: #F2F2F2;
+	}
+	.partner-tile-agency-kit{
+		display: none !important;
+	}
+	body .partners .partner-logo-wrapper{
+		height: 70px;
+	}

@@ -1,0 +1,364 @@
+/* Navigation Tabs */
+	a.tab{
+		margin-right: 1px;
+		display: inline-block;
+		padding: 14px 40px;
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px;
+		font-size: 1.4rem;	
+	}
+	a.tab,
+	a:visited.tab,
+	a:hover.tab{
+		background: #5B64B1;
+		color: #fff;
+	}
+	a.tab.current{
+		/* background: #3F4685 */
+	}
+	a.tab.tab-in-person{
+		background: #3F4685;
+	}
+	a.tab.tab-virtual{
+		background: #5B64B1;
+	}
+	.tab-andor-label{
+		width: 50px; 
+		height: 50px; 
+		background: #59D3C7; 
+		border-radius: 50%; 
+		position: absolute; 
+		right: -26px; 
+		top: 8px;
+		color: #fff; 
+		display: flex;  
+		align-items: center;
+		justify-content: center; 
+		font-size: .8rem;
+		font-weight: bolder;
+	}
+	@media(max-width: 700px){
+		a.tab{
+			font-size: 1.2rem;
+			padding: 16px 25px;
+		}
+	}
+/* Navigation Tabs */
+
+/* Tab Content Header */
+	.tab-content-header{
+		background: #3F4685;
+		color: #fff;
+	}
+	.page-main-dark .tab-content-header{
+		color: #fff;
+	}
+	.tab-content-header-col-1{
+		background: #30B1F3;
+	}
+	.tab-content-header-col-2{
+		background: #1A9FE3;
+	}
+	.tab-content-header-col-3{
+		background: #1C94D1;
+	}
+	.tab-content-header{
+		color: #fff;
+		justify-content: center;
+		text-align: center;
+		font-size: 1.2rem;
+		line-height: 1.1;
+	}
+	.tab-content-virtual .tab-content-header.col-lead{
+		background: #5B64B1;
+	}
+	.tab-content-in-person .tab-content-header.col-lead{
+		background: #3F4685;
+	}
+/* Tab Content Header */
+
+
+
+
+.register-table{
+
+	.col{
+		padding: 12px 16px;
+	}
+	.row-special-pricing .col{
+		padding-bottom: 4px;
+	}
+	
+	h4{
+		font-weight: bolder;
+		font-size: 1rem;
+		margin-bottom: 2px;
+	}
+	.product-property-details{
+		font-size: .9rem;
+		line-height: 1.2;
+	}
+	.fa-check-circle{
+		font-size: 24px;
+	}
+	.register-col-1 .fa-check-circle{
+		color: #30B1F3;
+	}
+	.register-col-2 .fa-check-circle{
+		color: #1A9FE3;
+	}
+	.register-col-3 .fa-check-circle{
+		color: #1C94D1;
+	}
+	
+	.fa-info-circle{
+		color: rgba(0,0,0,.7);
+		color: #fff;
+		margin-left: 6px;
+	}
+}
+
+
+/* Registration Row (Quantity Selector Buttons) */
+.register-row{
+	border-bottom: 1px solid rgba(255,255,255,.1);
+	background: rgba(0,0,0,.2);
+}
+.register-row:nth-child(even) {
+	background: rgba(0,0,0,.1);
+}
+.tribe-tickets__form .register-row-quantity{
+	background: #3F4685;
+	justify-content: right;
+	padding-top: 10px;
+	padding-bottom: 7px;
+}
+.register-row-quantity-prompt{
+	display: flex;
+    vertical-align: middle;
+    align-items: center;
+    justify-content: left;
+    width: 100%;
+    padding-left: 20px;
+}
+@media(max-width: 900px){
+	.register-row-quantity-prompt{
+		display: none;
+	}
+}
+.register-row-quantity-prompt,
+.register-row-quantity-prompt-title{
+	color: #fff;
+	font-weight: 500;
+	font-size: 1.25rem;
+}
+.register-row-quantity-prompt-subtext{
+	font-size: 1rem;
+	border: 1px solid red;
+}
+
+/* Just adding some specificity to override tribe defaults */
+.tribe-common .register-row-quantity-prompt{
+	padding-left: 20px;
+	color: #fff;
+}
+@media(max-width: 900px){
+	.tribe-tickets__form .register-row-quantity{
+		padding-left: 15px;
+		padding-right: 15px;
+		border-radius: 10px;
+	}
+}
+@media(min-width: 900px){
+	.tribe-tickets__form .register-row-quantity{
+		display: flex; 
+		width:100%;
+	}
+}
+.tab-content-virtual .register-row.row-buttons{
+	background: #5B64B1;
+}
+/* Set product quantity selctors to 182px wide (matching column widths) on desktop /*
+/* Virtual products are using add to cart buttons, so we're completely hiding the quantity selectors */
+.product_cat-in-person{
+	width: 182px;
+}
+.product_cat-virtual{
+	width: 0;
+}
+
+@media(max-width: 900px){
+	.event-tickets .tribe-tickets__tickets-form{
+		background: none !important;
+		padding: 0 !important;
+	}
+	
+	/* On mobile, we're showing quantity selectors for all -- and we'll span the whole width */
+	.product_cat-in-person,
+	.product_cat-virtual{
+		width: 100%;
+	}
+}
+
+
+.tab-content-virtual{
+	.register-row{
+		background: #343857;
+		border-left: 4px solid #5B64B1;
+	}
+	.register-row:nth-child(even) {
+		background: #313451;
+	}
+	.register-row.row-pricing:nth-child(even){
+		background: none;
+	}
+}
+.tab-content-in-person{
+	.register-row{
+		background: #2A2E4C;
+		border-left: 4px solid #3F4685;
+	}
+	.register-row:nth-child(even) {
+		background: #272A47;
+	}
+	.register-row.row-pricing:nth-child(even){
+		background: none;
+	}
+}
+
+
+
+/* Pricing Rows */
+	.register-row.row-pricing{
+		border-bottom: 0;
+		border-top: 0;
+		font-weight: 700;
+		background: none;
+	}
+	.register-row.row-pricing .col-lead{
+		text-align: right;
+		font-weight: bolder;
+		justify-content: right;
+	}
+	.price-secondary{
+		color: rgba(255,255,255,.8);
+		font-size: .9rem;
+	}
+	.register-row.row-pricing .col-lead{
+		font-size: 1rem;
+		font-weight: 700;
+	}
+	.row-pricing .price-main{
+		font-weight: 700;
+	}
+	
+/* Pricing Rows */
+
+
+/* Buttons Row */
+	.row-buttons{
+		.btn-primary,
+		.btn-primary:visited,
+		.btn-primary:hover{
+			padding: 8px 12px;
+			width: 100%;
+			text-align: center;
+			font-weight: bolder;
+			background: #0D9EE8;
+		}
+		.btn-primary:focus{
+			background: #0C8FD1;
+			background: #5DC2F6;
+		}
+	}
+	.tab-content .row-buttons-confirmation{
+		color: #59D3C7;
+	}
+/* Buttons Row */
+
+
+/* Get Tickets Footer */
+	.tribe-tickets__tickets-footer{
+		.btn-bordered,
+		.btn-bordered:hover{
+			padding: 12px 18px;
+			text-align: center;
+			font-weight: bolder;
+			border-radius: 10px;
+			font-size: 1.15rem;
+			border: 2px solid #29AFF3;
+			background: none;
+		}
+	}
+	.register-footer-tab-toggles{
+		display: inline-block;
+	}
+	@media(max-width: 900px){
+		.register-footer-tab-toggles{
+			display: none;
+		}
+	}
+/* Get Tickets Footer */
+
+
+/* Tab Content Mobile */
+	.tab-content-mobile{
+		background: #3F4685;
+		border-radius: 10px;
+		border-top-left-radius: 0;
+		padding: 20px;
+		margin-bottom: 30px;
+		
+		h3,h4,div, .fa{
+			color: #fff;
+		}
+		h3{
+			font-size: 1.4rem;
+			font-weight: bolder;
+			text-decoration: underline;
+		}
+		.register-tile-mobile-property-description{
+			color: rgba(255,255,255,.8);
+		}
+	}
+	.register-tile-mobile{
+		margin-bottom: 25px;
+		background: #515790;
+	}
+/* Tab Content Mobile */
+
+
+/* Tribe Events Tickets */
+	.tribe-events-single-event-description{
+		margin-top: 0; 
+		padding: 10px 20px 10px 10px; 
+		background: #3F4685; 
+		color: #fff; 
+		font-weight: bolder; 
+	}
+	@media(min-width: 900px){
+		.tribe-events-single-event-description{
+			border-bottom-right-radius: 10px;
+		}
+	}
+	.event-tickets .tribe-tickets__tickets-footer-quantity{
+		display: block;
+	}
+	
+	.tribe-events-ticket-prompt{
+		position: absolute; 
+		right: 550px;
+		z-index: 5;
+		font-weight: bolder;
+	}
+	.tribe-events-ticket-prompt-row-1{
+		top: 30px;
+	}
+	.tribe-events-ticket-prompt-row-2{
+		top: 80px;
+	}
+	@media(max-width: 900px){
+		.tribe-events-ticket-prompt{
+			display: none;
+		}
+	}

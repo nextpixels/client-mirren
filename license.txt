@@ -1,0 +1,18 @@
+Theme Name: Ergo
+Author: Forrest Smith
+Author URI: drempd.com
+
+Copyright (c) 2024 Forrest Smith
+
+All rights reserved.
+
+Unauthorized redistribution, duplication, or use of this theme, in whole or in part, is strictly prohibited without the express written permission of the author. This theme is intended for use on authorized websites only. Any use of this theme on non-approved websites is a violation of copyright laws and will be subject to legal action.
+
+If you have received permission to use this theme, you must retain the above copyright notice, this list of conditions, and the following disclaimer in all copies or substantial portions of the theme.
+
+THEME IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE THEME OR THE USE OR OTHER DEALINGS IN THE THEME.
+
+For inquiries or permissions, please contact:
+Forrest Smith
+forrest@drempd.com
+
