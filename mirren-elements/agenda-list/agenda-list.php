@@ -236,13 +236,27 @@ $timeBlocks = get_date_time_blocks($session);
 			<div class="day-content-wrapper-background"></div>
 			<div class="day-content-wrapper-background-bottom"></div>
 			<div class="day-content-wrapper-content"><?php
+
 				if (count($dateBlocks) == 0){ ?>
-					No Sessions Found<?php	
+					No Sessions Found<?php
 				}
 				else{
 					for ($lpDay=0;$lpDay<count($dateBlocks);$lpDay++){ ?>
 						<div id="day-<?php echo $dateBlocks[$lpDay]; ?>" class="day-content day-content-tab-<?php echo $lpDay; ?>"><?php
-							
+
+							//Day header content here:
+								$dayHeaderText = wp_specialchars_decode($postMeta['tab_intro_text_'.($lpDay+1)]);
+								if (!empty($dayHeaderText)){ ?>
+									<div class="columns-flex collapse-900 p-b-15">		
+										<div class="col col-150">&nbsp;</div>
+										<div class="col col-fluid">
+											<div class="day-header-content">
+												<?php echo $dayHeaderText; ?>
+											</div>
+										</div>
+									</div><?php
+								}
+
 							//Desktop View ?>
 								<div><?php
 									if (get_field('showhide_track_header') != "hide"){
@@ -453,7 +467,8 @@ function render_track_headings($day,$tabNum,$postMeta){
 						"ColumnNum" => $i+1,
 						"ColumnWidth" => $colWidth,
 						"ShowTrackNum" => $showTrackNum,
-						"Day" => $day				
+						"Day" => $day,
+						"PostMeta" => $postMeta
 					));
 					
 				}	
@@ -465,7 +480,23 @@ function render_track_headings($day,$tabNum,$postMeta){
 	</div><?php
 }
 
-function render_track_heading($data=array()){ ?>
+function render_track_heading($data=array()){
+
+	//These three keys match the {{...}} placeholders below, which get swapped for their actual
+	//content (and, for administrators, an inline edit icon) by the in-page editing system --
+	//see ergo-in-page-editing/editable-inpage-bottom.php.
+		$straplineKey = "track-strapline-".$data['Day']."-".$data['ColumnNum'];
+		$titleKey 	= "track-title-".$data['Day']."-".$data['ColumnNum'];
+		$textKey 		= "track-text-".$data['Day']."-".$data['ColumnNum'];
+
+		$hasContent = !empty($data['PostMeta'][$straplineKey]) || !empty($data['PostMeta'][$titleKey]) || !empty($data['PostMeta'][$textKey]);
+
+	//Don't render this track header if none of those three fields have content yet -- unless we're
+	//logged in as an administrator, since the inline edit icons added by the in-page editing system
+	//(above) are how those fields get their first value, and would otherwise have nowhere to render.
+		if (!$hasContent && !current_user_can('administrator')){
+			return;
+		} ?>
 	<div class="col-<?php echo $data['ColumnWidth']; ?> track-header track-header-<?php echo $data['ColumnNum']; ?>">
 		<div class="track-header-content"><?php
 			if ($data['ShowTrackNum'] == true){
@@ -478,11 +509,19 @@ function render_track_heading($data=array()){ ?>
 				if ($data['ColumnNum'] == 3){
 					$trackName = "Track Three";
 				}
+			}
+
+			//Only an administrator ever reaches this point with no content (see the check above),
+			//so let them know this box is otherwise hidden rather than leaving it looking broken/empty:
+			if (!$hasContent){ ?>
+				<div class="admin-only-note" style="font-style: italic; opacity: 0.6; font-size: 0.85rem; margin-bottom: 8px;">
+					This box will be hidden on the front end unless content is added below.
+				</div><?php
 			} ?>
-			
-			<h3>{{track-strapline-<?php echo $data['Day']; ?>-<?php echo $data['ColumnNum']; ?>}}</h3>
-			<h4>{{track-title-<?php echo $data['Day']; ?>-<?php echo $data['ColumnNum']; ?>}}</h4>
-			<div class="track-header-text">{{track-text-<?php echo $data['Day']; ?>-<?php echo $data['ColumnNum']; ?>}}</div>
+
+			<h3>{{<?php echo $straplineKey; ?>}}</h3>
+			<h4>{{<?php echo $titleKey; ?>}}</h4>
+			<div class="track-header-text">{{<?php echo $textKey; ?>}}</div>
 		</div>
 	</div><?php
 }

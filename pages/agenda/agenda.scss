@@ -1,13 +1,19 @@
 /* Hiding the final one on mobile...they're using the dates here as a placeholder */
+/*
 #accordion-2{
 	display: none;
 }
+*/
 
 #day-20261201 .row-time-time{
 	display: none;
 }
-
-
+.day-header-mobile-20261201 .day-header-mobile-date{
+	display: none;
+}
+#day-20261201 .track-header-1{
+	display: none;
+}
 body .sessions-by-track .strapline{
 	color: #6975FC;
 }

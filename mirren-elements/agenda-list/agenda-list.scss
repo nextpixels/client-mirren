@@ -689,3 +689,19 @@ $tile-font-color: #000;
 		width: 100%;
 	}
 /* Master of Ceremonies Section */
+
+
+/* Day Heading */
+.day-header-content{
+	background: #0a7bb5;
+	color: #fff;
+	padding: 25px 40px;
+	text-align: center;
+
+	h3{
+		font-size: 1.3rem;
+	}
+	h3,p,div{
+		color: #fff;
+	}
+}
