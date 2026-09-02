@@ -13,9 +13,9 @@
 	
 	h2{
 		color: #fff;
-		font-size: 1.3rem;
+		font-size: 1.2rem;
 		margin-bottom: 0;
-		font-weight: 300;
+		font-weight: 400;
 		text-transform: none;
 	}
 	p{
@@ -25,14 +25,29 @@
 		background: #F9B112;
 		font-weight: bolder;
 		font-size: 1.2rem;
-		/* border: 2px solid #fff; */
 	}
-	
+
+	.hero-footer-cta-inner{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 20px;
+	}
+
 }
 
 @media(max-width: 1100px){
 	#hero-footer-cta{
 		margin-top: 0;
 		border-radius: 0;
+	}
+}
+
+@media(max-width: 600px){
+	#hero-footer-cta h2{
+		text-align: center;
+	}
+	#hero-footer-cta .hero-footer-cta-inner{
+		flex-direction: column;
 	}
 }
