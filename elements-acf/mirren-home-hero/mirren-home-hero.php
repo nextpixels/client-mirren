@@ -23,6 +23,11 @@ $calloutStrapline = get_field('callout_strapline');
 	if (!empty($contentMaxWidth)){ ?>
 		.home-hero-content-column-content{
 			max-width: <?php echo $contentMaxWidth; ?>px;
+		}
+		@media(max-width: 900px){
+			.home-hero-content-column-content{
+				margin: 0 auto;
+			}
 		}<?php
 	}
 
