@@ -4,6 +4,36 @@
 .featured-sessions-tile{
 	background: #fff;
 	border-radius: 10px;
-	padding: 30px;
+
+	h2,h3,p,div{
+		color: #fff;
+		
+	}
+	h2,h3{
+		font-weight: 600;
+	}
+
+	.featured-sessions-tile-content{
+		padding: 30px;
+	}
+	@media(min-width: 900px){
+		.featured-sessions-tile-content{
+			margin-right: 150px;
+		}
+	}
+	.featured-sessions-tile-subtitle{
+		line-height: 1;
+	}
+	.featured-sessions-tile-agency{
+		font-weight: 600;
+		font-size: 1.2rem;
+	}
+	.featured-sessions-tile-person-name{
+		margin-top: -5px;
+	}
+	.featured-sessions-tile-image{
+		float: right;
+		margin-top: -120px;
+	}
 	
 }
