@@ -1528,6 +1528,18 @@ function di_get_active_mirren_event_tickets_url() {
 		return '';
 	}
 
+	// If the event's post type (tribe_events, from The Events Calendar) isn't currently
+	// registered -- e.g. that plugin has been removed -- get_permalink() can't build a real
+	// path for it and falls back to a query-string URL like "?post_type=tribe_events&p=95"
+	// instead. Appending "/tickets/" to that lands inside the query string, not the path, so
+	// wp_parse_url( ..., PHP_URL_PATH ) on the result below would collapse to just the site's
+	// base path -- indistinguishable from the home page itself, which made
+	// di_redirect_tickets_to_account() incorrectly redirect every logged-out home page visit
+	// to /my-account/. Treat that fallback as "no real URL" rather than let it collide.
+	if ( str_contains( $event_url, '?' ) ) {
+		return '';
+	}
+
 	return trailingslashit( $event_url ) . 'tickets/';
 }
 
