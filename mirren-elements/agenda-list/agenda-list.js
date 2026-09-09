@@ -2,12 +2,15 @@ document.addEventListener( 'DOMContentLoaded', function(e) {
 	open_default_tab(default_tab);
 	add_event('.day-navigation-link','click',day_navigation_click);
 
+	//Associate the already-loaded URL with its tab, so navigating back to it later (via the
+	//browser's back/forward buttons) reports the right value through popstate below:
+	history.replaceState({tab: default_tab},'',window.location.href);
+
 	//Keep the visible tab in sync when using the browser's back/forward buttons, since clicking a
 	//tab now pushes a new history entry (see day_navigation_click below):
 	window.addEventListener('popstate',function(e){
-		var tab = new URL(window.location.href).searchParams.get('tab');
-		if (tab){
-			show_tab(tab);
+		if (e.state && e.state.tab){
+			show_tab(e.state.tab);
 		}
 	});
 });
@@ -25,12 +28,13 @@ function day_navigation_click(e){
 
 	show_tab(selectedDate);
 
-	//Update the URL's "tab" parameter to match, so the currently open tab can be bookmarked or
-	//shared -- this is the same query var the page itself reads on load (see get_query_var('tab')
-	//in agenda-list.php) -- without triggering a page reload:
-		var url = new URL(window.location.href);
-		url.searchParams.set('tab',selectedDate);
-		history.pushState({tab: selectedDate},'',url);
+	//Update the URL to a pretty "/tab-value/" path (e.g. /agenda/day-1/) rather than a query
+	//string, so it can be bookmarked or shared -- this matches mirren_agenda_list_pretty_tab_url()
+	//in functions.php, which makes that path actually resolve. Built from the page's own clean
+	//permalink (agenda_page_base_url, printed above) rather than the current address bar, since
+	//that may already carry a previous tab's suffix or the old ?tab= form:
+		var newUrl = agenda_page_base_url+'/'+encodeURIComponent(selectedDate)+'/';
+		history.pushState({tab: selectedDate},'',newUrl);
 
 	document.getElementById("agenda-listing-grid").scrollIntoView();
 

@@ -168,13 +168,55 @@ add_filter( 'tec_event_automator_zapier_max_queue_items', function($max_items) {
 
 		//Custom URL Parameters:
 			add_action('init','add_get_val');
-			function add_get_val() { 
-				global $wp; 
-				$wp->add_query_var('id'); 
-				$wp->add_query_var('show'); 
-				$wp->add_query_var('tab'); 
+			function add_get_val() {
+				global $wp;
+				$wp->add_query_var('id');
+				$wp->add_query_var('show');
+				$wp->add_query_var('tab');
 			}
-	
+
+		//Pretty tab URLs (e.g. /agenda/day-1/ instead of /agenda/?tab=day-1) for any page using the
+		//agenda-list module -- no hardcoded slugs, so it applies to any current or future page built
+		//on it. Uses the 'request' filter (not a rewrite rule) so no permalink flush is needed.
+			add_filter('request','mirren_agenda_list_pretty_tab_url');
+			function mirren_agenda_list_pretty_tab_url($query_vars){
+
+				//Only step in for requests WordPress hasn't already resolved to a real object:
+				if (!empty($query_vars['pagename']) || !empty($query_vars['name']) || !empty($query_vars['tab']) || !empty($query_vars['page_id'])){
+					return $query_vars;
+				}
+
+				$path = trim(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH),'/');
+
+				//Strip the site's own subdirectory, if WordPress is installed in one (e.g. /mirren/):
+				$homePath = trim(parse_url(home_url(),PHP_URL_PATH),'/');
+				if ($homePath && stripos($path,$homePath) === 0){
+					$path = trim(substr($path,strlen($homePath)),'/');
+				}
+
+				$segments = explode('/',$path);
+				if (count($segments) != 2 || empty($segments[0]) || empty($segments[1])){
+					return $query_vars;
+				}
+
+				list($pageSlug,$tabValue) = $segments;
+
+				$page = get_page_by_path($pageSlug);
+				if (!$page || $page->post_status != 'publish'){
+					return $query_vars;
+				}
+
+				$pageTemplateFile = get_stylesheet_directory()."/pages/".$pageSlug."/".$pageSlug.".php";
+				if (!file_exists($pageTemplateFile) || !stristr(file_get_contents($pageTemplateFile),"agenda-list")){
+					return $query_vars;
+				}
+
+				return array(
+					'page_id' => $page->ID,
+					'tab' => $tabValue
+				);
+			}
+
 
 	//Remove post types from Yoast sitemap
 	/*

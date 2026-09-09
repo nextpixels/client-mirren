@@ -121,6 +121,11 @@ $timeBlocks = get_date_time_blocks($session);
 
 <script>
 	var default_tab = "<?php echo $showTab; ?>";
+	//The page's own clean permalink (no tab suffix) -- used to build the pretty "/tab-value/" URL
+	//when a tab is clicked, regardless of how this URL was reached (bare, ?tab=..., or already
+	//carrying a previous tab's suffix). See mirren_agenda_list_pretty_tab_url() in functions.php
+	//for the server-side half of this (the rewrite that makes that URL actually resolve).
+	var agenda_page_base_url = "<?php echo esc_js(untrailingslashit(get_permalink())); ?>";
 	var agenda_data = [];<?php
 	if (is_array($session)){
 		for ($i=0;$i<count($session);$i++){ ?>
