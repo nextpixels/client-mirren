@@ -423,7 +423,7 @@ function render_sessions_by_track($options=array(),$postMeta,$timeBlocks,$sessio
 							//if (isset($trackLabel[$i]) && trim($trackLabel[$i]) != "" && strlen(trim($trackLabel[$i])) > 0){ ?>
 								<div class="strapline"><?php echo $trackLabel[$i]; ?></div><?php
 							//} ?>
-							<div class="track-header-text"><h4>{{track-title-<?php echo $options['Day']; ?>-<?php echo $i+1; ?>}}</h4></div>
+							<div class="track-header-text"><h4>{{track-title-mobile-<?php echo $options['Day']; ?>-<?php echo $i+1; ?>}}</h4></div>
 						</div>
 					</div>
 				
