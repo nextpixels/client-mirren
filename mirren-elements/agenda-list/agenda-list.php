@@ -70,14 +70,34 @@ $timeBlocks = get_date_time_blocks($session);
 	
 //Get page meta:
 	$postMeta = ergo_get_post_meta(get_the_id());
-	
+
+//Per-day URL identifiers: the tab/day content is identified in the DOM (and in the "tab" URL
+//parameter) by tab_slug_N when the admin has set one for that day, falling back to the date
+//(YYYYMMDD) otherwise, same as before. This is only ever used for the id/class/URL identity of a
+//tab -- anywhere sessions get matched to a day (session_timestamp, $options['Day'], etc.) still
+//needs to keep using the real date from $dateBlocks, not this identifier.
+	$tabIdentifiers = array();
+	for ($i=0;$i<count($dateBlocks);$i++){
+		$tabIdentifiers[$i] = !empty($postMeta['tab_slug_'.($i+1)]) ? $postMeta['tab_slug_'.($i+1)] : $dateBlocks[$i];
+	}
+
 //Tab to show:
 	$showTab = get_query_var('tab');
 	if (!$showTab){
-		$showTab =  get_field('default_tab');
+		//default_tab stores the raw date (YYYYMMDD) of the day to open by default. Since that day's
+		//actual id/data-date in the DOM is now $tabIdentifiers[...] (its tab_slug_N when set, the date
+		//otherwise -- see above), look up which day default_tab's date refers to and use ITS identifier,
+		//so this still opens the right tab whether or not that day has a slug set:
+			$defaultTabDate = get_field('default_tab');
+			if ($defaultTabDate){
+				$defaultTabIndex = array_search($defaultTabDate,$dateBlocks);
+				if ($defaultTabIndex !== false){
+					$showTab = $tabIdentifiers[$defaultTabIndex];
+				}
+			}
 	}
 	if (!$showTab){
-		$showTab =  $dateBlocks[0];
+		$showTab =  $tabIdentifiers[0];
 	}
 	
 	//If it's the current day of a tab, just show that one:
@@ -232,7 +252,7 @@ $timeBlocks = get_date_time_blocks($session);
 	
 	//Desktop View	
 
-		render_day_navigation($dateBlocks,$postMeta);	?>
+		render_day_navigation($dateBlocks,$postMeta,$tabIdentifiers);	?>
 		
 		<div class="day-content-wrapper hide-lessthan-900">
 			<div class="day-content-wrapper-background"></div>
@@ -244,7 +264,7 @@ $timeBlocks = get_date_time_blocks($session);
 				}
 				else{
 					for ($lpDay=0;$lpDay<count($dateBlocks);$lpDay++){ ?>
-						<div id="day-<?php echo $dateBlocks[$lpDay]; ?>" class="day-content day-content-tab-<?php echo $lpDay; ?>"><?php
+						<div id="day-<?php echo $tabIdentifiers[$lpDay]; ?>" class="day-content day-content-tab-<?php echo $lpDay; ?>"><?php
 
 							//Day header content here:
 								$dayHeaderText = wp_specialchars_decode($postMeta['tab_intro_text_'.($lpDay+1)]);
@@ -276,7 +296,7 @@ $timeBlocks = get_date_time_blocks($session);
 		</div>
 	
 		<div class="day-navigation-bottom"><?php
-			render_day_navigation($dateBlocks,$postMeta);	?>
+			render_day_navigation($dateBlocks,$postMeta,$tabIdentifiers);	?>
 		</div><?php
 	//End Desktop View ?>
 	
@@ -534,7 +554,7 @@ function render_track_heading($data=array()){
 
 //Day Tabs
 //{{day-title-<?php echo $dateBlocks[$i]; }}
-function render_day_navigation($dateBlocks,$postMeta){ ?>
+function render_day_navigation($dateBlocks,$postMeta,$tabIdentifiers){ ?>
 
 	<div class="day-navigation-wrapper">
 		<div class="contain-1100 hide-lessthan-900" style="position: relative; z-index: 100;">
@@ -549,7 +569,7 @@ function render_day_navigation($dateBlocks,$postMeta){ ?>
 		<div class="day-navigation hide-lessthan-900 days-<?php echo count($dateBlocks); ?>"><?php
 			for ($i=0;$i<count($dateBlocks);$i++){
 				$key = $i + 1; 	?>
-				<a id="tab-<?php echo $dateBlocks[$i]; ?>" href="#" class="day-navigation-link tab-<?php echo strtolower($postMeta['tab_size_'.$key]); ?> tab-<?php echo $dateBlocks[$i]; ?>" data-date="<?php echo $dateBlocks[$i]; ?>">
+				<a id="tab-<?php echo $tabIdentifiers[$i]; ?>" href="#" class="day-navigation-link tab-<?php echo strtolower($postMeta['tab_size_'.$key]); ?> tab-<?php echo $tabIdentifiers[$i]; ?>" data-date="<?php echo $tabIdentifiers[$i]; ?>">
 					<div class="day-navigation-tab-divet"></div>
 					<h3><?php echo $postMeta['tab_title_'.$key]; ?></h3>
 					<div class="day-navigation-date-wrapper">
