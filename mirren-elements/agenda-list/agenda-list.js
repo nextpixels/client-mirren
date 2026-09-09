@@ -1,29 +1,50 @@
 document.addEventListener( 'DOMContentLoaded', function(e) {
 	open_default_tab(default_tab);
 	add_event('.day-navigation-link','click',day_navigation_click);
+
+	//Keep the visible tab in sync when using the browser's back/forward buttons, since clicking a
+	//tab now pushes a new history entry (see day_navigation_click below):
+	window.addEventListener('popstate',function(e){
+		var tab = new URL(window.location.href).searchParams.get('tab');
+		if (tab){
+			show_tab(tab);
+		}
+	});
 });
 
 
 function open_default_tab(selectedDate){
-	remove_class('.day-navigation-link','current');
-	$('.tab-'+selectedDate).addClass('current');				//TODO: jQuery
-	show('#day-'+selectedDate);
+	show_tab(selectedDate);
 }
 
 
 function day_navigation_click(e){
 	e.preventDefault();
-	
+
 	var selectedDate = get_attr(this,'data-date');
-	
-	remove_class('.day-navigation-link','current');
-	$('.tab-'+selectedDate).addClass('current');				//TODO: jQuery
-	
-	hide('.day-content');
-	show('#day-'+selectedDate);
-	
+
+	show_tab(selectedDate);
+
+	//Update the URL's "tab" parameter to match, so the currently open tab can be bookmarked or
+	//shared -- this is the same query var the page itself reads on load (see get_query_var('tab')
+	//in agenda-list.php) -- without triggering a page reload:
+		var url = new URL(window.location.href);
+		url.searchParams.set('tab',selectedDate);
+		history.pushState({tab: selectedDate},'',url);
+
 	document.getElementById("agenda-listing-grid").scrollIntoView();
 
+}
+
+
+//Shows the given day's tab/content. Shared by the initial page load, tab clicks, and browser
+//back/forward navigation, so all three stay in sync with each other.
+function show_tab(selectedDate){
+	remove_class('.day-navigation-link','current');
+	$('.tab-'+selectedDate).addClass('current');				//TODO: jQuery
+
+	hide('.day-content');
+	show('#day-'+selectedDate);
 }
 
 
