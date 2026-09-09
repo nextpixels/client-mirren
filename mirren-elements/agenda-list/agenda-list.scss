@@ -13,7 +13,9 @@ $tile-font-color: #000;
 	}
 	
 	.day-navigation-link{
-		display: inline-block;
+		display: inline-flex;
+		flex-direction: column;
+		justify-content: center;
 		margin: 0;
 		border-top-left-radius: 10px;
 		border-top-right-radius: 10px;
@@ -42,11 +44,11 @@ $tile-font-color: #000;
 		margin-bottom: 10px;
 	}
 	.day-navigation-link.tab-small{
-		padding: 10px 40px 10px 40px;
+		/* padding: 10px 40px 10px 40px; */
 	}
 	.day-navigation-link.tab-small h3{
 		font-size: 1rem;
-		margin-bottom: 4px;
+		/* margin-bottom: 4px; */
 	}
 	.day-navigation-date-wrapper{
 		height: 20px;
@@ -112,7 +114,7 @@ $tile-font-color: #000;
 	}
 
 	.day-navigation-link{
-		display: inline-block;
+		display: inline-flex;
 	}
 	/* Hide tabs if there is only one day */
 	.days-1 .day-navigation-link{
@@ -441,9 +443,6 @@ $tile-font-color: #000;
 	}
 	.row-items-3 .track-3 .session-tile-body{
 		border-right: 0;
-	}
-	.track-1.is-keynote .session-tile-body{
-		/* display: none; */
 	}
 /* Body */
 

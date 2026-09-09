@@ -575,14 +575,15 @@ function render_day_navigation($dateBlocks,$postMeta,$tabIdentifiers){ ?>
 			for ($i=0;$i<count($dateBlocks);$i++){
 				$key = $i + 1; 	?>
 				<a id="tab-<?php echo $tabIdentifiers[$i]; ?>" href="#" class="day-navigation-link tab-<?php echo strtolower($postMeta['tab_size_'.$key]); ?> tab-<?php echo $tabIdentifiers[$i]; ?>" data-date="<?php echo $tabIdentifiers[$i]; ?>">
-					<div class="day-navigation-tab-divet"></div>
-					<h3><?php echo $postMeta['tab_title_'.$key]; ?></h3>
-					<div class="day-navigation-date-wrapper">
-						<?php
+					<div>
+						<div class="day-navigation-tab-divet"></div>
+						<h3><?php echo $postMeta['tab_title_'.$key]; ?></h3><?php
 						if (!stristr($postMeta['hide_date_'.$key],"Hide Date")){ ?>
-							<span class="day-navigation-date">
-							<?php echo text_format($dateBlocks[$i],"M j, Y"); ?>
-							</span><?php
+							<div class="day-navigation-date-wrapper">
+								<span class="day-navigation-date">
+								<?php echo text_format($dateBlocks[$i],"M j, Y"); ?>
+								</span>
+							</div><?php
 						} ?>
 					</div>
 				</a><?php
