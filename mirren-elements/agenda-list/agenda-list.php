@@ -200,7 +200,8 @@ $timeBlocks = get_date_time_blocks($session);
 									'Sessions' => $session,
 									'SpeakersByName' => $speakersByName,
 									'Timezone' => $timeZone,
-									'TogglableTracks' => $togglableTracksOnMobile
+									'TogglableTracks' => $togglableTracksOnMobile,
+									'HideTime' => stristr($postMeta['hide_time_'.($lpDay+1)],"Hide Time")
 								),$postMeta,$timeBlocks,$sessionData);
 							}
 							else{
@@ -211,7 +212,8 @@ $timeBlocks = get_date_time_blocks($session);
 									'Sessions' => $session,
 									'SpeakersByName' => $speakersByName,
 									'Timezone' => $timeZone,
-									'TogglableTracks' => $togglableTracksOnMobile
+									'TogglableTracks' => $togglableTracksOnMobile,
+									'HideTime' => stristr($postMeta['hide_time_'.($lpDay+1)],"Hide Time")
 								),$postMeta,$timeBlocks,$sessionData);
 							}
 							?>
@@ -263,7 +265,7 @@ $timeBlocks = get_date_time_blocks($session);
 										render_track_headings($dateBlocks[$lpDay],$lpDay,$postMeta);
 									}
 									agenda_list_render_master_of_ceremonies();
-									render_day($session,$dateBlocks[$lpDay],$timeBlocks,$speakersByName,$sessionData,array('Timezone'=>$timeZone));	?>
+									render_day($session,$dateBlocks[$lpDay],$timeBlocks,$speakersByName,$sessionData,array('Timezone'=>$timeZone,'HideTime'=>stristr($postMeta['hide_time_'.($lpDay+1)],"Hide Time")));	?>
 								</div>
 								
 						</div><?php
@@ -331,11 +333,13 @@ function mobile_render_sessions_by_time($options=array(),$postMeta,$timeBlocks,$
 								}
 							}
 							
-							//Show the time: ?>
-								<div class="track-body-mobile-time track-body-mobile-time-<?php echo $timeBlocks[$b]; ?> p-t-15 p-b-5"><?php
-									echo text_format($timeBlocks[$b],"g:i a")." ".$options['Timezone']; ?>
-								</div><?php
-								
+							//Show the time:
+								if (empty($options['HideTime'])){ ?>
+									<div class="track-body-mobile-time track-body-mobile-time-<?php echo $timeBlocks[$b]; ?> p-t-15 p-b-5"><?php
+										echo text_format($timeBlocks[$b],"g:i a")." ".$options['Timezone']; ?>
+									</div><?php
+								}
+
 							//Display the Tile:
 								render_session_tile($options['Sessions'][$c],$options['SpeakersByName'],$c,$sessionData);
 								
@@ -413,13 +417,14 @@ function render_sessions_by_track($options=array(),$postMeta,$timeBlocks,$sessio
 												
 												if ($options['Sessions'][$c]['session_track'] == $i+1 || $options['Sessions'][$c]['is_keynote']){
 												
-													//Show the time: ?>
-														<div class="track-body-mobile-time track-body-mobile-time-<?php echo $timeBlocks[$b]; ?> p-t-15 p-b-5"><?php
-															echo text_format($timeBlocks[$b],"g:i a")." ".$options['Timezone']; ?>
-														</div><?php
-														
+													//Show the time:
+														if (empty($options['HideTime'])){ ?>
+															<div class="track-body-mobile-time track-body-mobile-time-<?php echo $timeBlocks[$b]; ?> p-t-15 p-b-5"><?php
+																echo text_format($timeBlocks[$b],"g:i a")." ".$options['Timezone']; ?>
+															</div><?php
+														}
+
 													//Display the Tile:
-														
 														render_session_tile($options['Sessions'][$c],$options['SpeakersByName'],$c,$sessionData);
 												}
 												
@@ -586,10 +591,12 @@ function render_day($session,$currentDay,$timeBlocks,$speakersByName,$sessionDat
 				<div class="row-time row-time-<?php echo $timeBlocks[$i]; ?> row-items-<?php echo $sessionsCount; ?>">
 					<div class="columns-flex collapse-900">
 						<div class="col col-150">
-							<div class="row-time-border-top"></div>
-							<div class="row-time-time">
-								<?php echo text_format($timeBlocks[$i],"g:i a"); ?> <?php echo $options['Timezone']; ?>
-							</div>
+							<div class="row-time-border-top"></div><?php
+							if (empty($options['HideTime'])){ ?>
+								<div class="row-time-time">
+									<?php echo text_format($timeBlocks[$i],"g:i a"); ?> <?php echo $options['Timezone']; ?>
+								</div><?php
+							} ?>
 						</div>
 						<div class="col col-fluid">
 							<div class="columns-fluid"><?php
