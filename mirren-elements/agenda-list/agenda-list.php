@@ -200,10 +200,12 @@ $timeBlocks = get_date_time_blocks($session);
 							</div>
 							
 							<div class="day-header-mobile-<?php echo $dateBlocks[$lpDay]; ?>" style="padding-left: 30px;">
-								<span class="day-header-mobile-title" style="display: inline-block; margin-right: 6px; padding-top: 0; padding-bottom: 0;">{{mobile-agenda-day-<?php echo $lpDay; ?>}}</span>
-								<span class="day-header-mobile-date" style="padding-top: 0;">
-									<?php echo text_format($dateBlocks[$lpDay],"M j"); ?>
-								</span>
+								<span class="day-header-mobile-title" style="display: inline-block; margin-right: 6px; padding-top: 0; padding-bottom: 0;">{{mobile-agenda-day-<?php echo $lpDay; ?>}}</span><?php
+								if (!stristr($postMeta['hide_date_'.($lpDay+1)],"Hide Date")){ ?>
+									<span class="day-header-mobile-date" style="padding-top: 0;">
+										<?php echo text_format($dateBlocks[$lpDay],"M j"); ?>
+									</span><?php
+								} ?>
 							</div>
 						</div>
 						<?php /* 
