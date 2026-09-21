@@ -252,6 +252,37 @@
 		font-weight: 700;
 	}
 	
+	.pricing-lead-label-notice{
+		padding: 4px;
+		font-size: .9rem;
+		text-align: center;
+		line-height: 1.2;
+		background: #ef9f27;
+		border-radius: 8px;
+		position: relative;
+
+		/* Divet: a triangle outside the right edge, midway up, pointing away from the box */
+		&:after{
+			content: "";
+			position: absolute;
+			left: 100%;
+			top: 50%;
+			margin-top: -8px;
+			border-top: 8px solid transparent;
+			border-bottom: 8px solid transparent;
+			border-left: 8px solid #ef9f27;
+		}
+
+		p{
+			font-size: .9rem;
+			line-height: 1.2;
+			margin: 0;
+			padding: 0;
+		}
+		strong, p, span{
+			color: #fff;
+		}
+	}
 /* Pricing Rows */
 
 

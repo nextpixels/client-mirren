@@ -749,12 +749,35 @@ function render_product_pricing_table($productProperties,$products,$productType,
 		$normalPrice = "normal_price";
 	}
 	
-	$type_base = array_search( $productType, array_column( $products, 'Type' ) );
-	?>
+	$type_base = array_search( $productType, array_column( $products, 'Type' ) );	?>
 	
 	<div class="columns-flex register-row row-pricing <?php echo $class; ?>">
 		<div class="col col-fluid col-lead vertical-center pricing-lead">
-			<div class="pricing-lead-label"><?php echo $label; ?></div>
+			<div style="width: 100%;">
+			<div class="pricing-lead-label"><?php
+				
+				echo $label;
+
+				if ($productType === 'virtual'){
+					
+					$promptLabel 	=  get_field('register_row_quantity_prompt_virtual','option');
+					$promptNotice 	=  get_field('registration_quantity_row_text_notice_virtual','option');
+
+					echo $promptLabel;
+					if (!empty($promptNotice)){ ?>
+						<div class="pricing-lead-label-notice"><?php echo $promptNotice; ?></div><?php
+					}
+
+				} 
+				else{
+					echo get_field(
+						'register_row_quantity_prompt_in_person',
+						'option'
+					);
+				} ?>
+			
+			</div>
+			</div>
 		</div><?php
 		
 		for ($b=0;$b<count($products);$b++){ 
