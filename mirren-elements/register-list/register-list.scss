@@ -260,6 +260,8 @@
 		background: #ef9f27;
 		border-radius: 8px;
 		position: relative;
+		width: 80%;
+		margin: 0 auto;
 
 		/* Divet: a triangle outside the right edge, midway up, pointing away from the box */
 		&:after{
@@ -281,6 +283,33 @@
 		}
 		strong, p, span{
 			color: #fff;
+		}
+	}
+
+	/* Mobile copy of the notice (rendered above the quantity row in tribe/tickets/v2/tickets.php).
+	   Only shown at <=900px while the Virtual tab is active; divet points down at the row below. */
+	.pricing-lead-label-notice-mobile-wrapper{
+		padding-bottom: 20px !important;
+	}
+	.pricing-lead-label-notice-mobile{
+		display: none;
+		padding: 8px !important;
+	}
+	@media(max-width: 900px){
+		#pricing-wrap.pricing-virtual .pricing-lead-label-notice-mobile{
+			display: block;
+			margin-bottom: 14px;
+			margin: 0 auto;
+		}
+		.pricing-lead-label-notice-mobile:after{
+			left: 50%;
+			top: 100%;
+			margin-top: 0;
+			margin-left: -8px;
+			border-top: 8px solid #ef9f27;
+			border-bottom: 0;
+			border-left: 8px solid transparent;
+			border-right: 8px solid transparent;
 		}
 	}
 /* Pricing Rows */

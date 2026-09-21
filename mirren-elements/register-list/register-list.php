@@ -105,6 +105,20 @@
 		return strtolower($tmp[1]);
 	}
 
+	// Mobile-only copy of the virtual quantity notice. Desktop shows it in the pricing table (see
+	// render_product_pricing_table()); on mobile that table is hidden, so this prints it just above
+	// the ".register-row-quantity" row instead. Tribe fires this action right after it includes
+	// v2/tickets/notice, which is the template immediately before that row in tribe/tickets/v2/tickets.php.
+	// Visibility (<=900px, Virtual tab only) is handled in register-list.scss.
+	function render_mobile_quantity_notice() {
+		$notice = get_field( 'registration_quantity_row_text_notice_virtual', 'option' );
+		if ( empty( $notice ) ) {
+			return;
+		}
+		echo '<div class="pricing-lead-label-notice-mobile-wrapper"><div class="pricing-lead-label-notice pricing-lead-label-notice-mobile">' . $notice . '</div></div>';
+	}
+	add_action( 'tribe_template_after_include:tickets/v2/tickets/notice', 'render_mobile_quantity_notice' );
+
 	/**
 	 * Return customer-facing pricing for the custom registration table.
 	 *
