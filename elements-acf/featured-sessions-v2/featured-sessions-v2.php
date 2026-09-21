@@ -8,6 +8,8 @@
 
 	ergo_embed_styles_scripts(__DIR__);
 
+	$blockData['cssClass'] = "background-light-blue";
+
 	//Get the "session" repeater's rows into $sessions:
 		$sessions = array();
 		if (have_rows('session')) {
@@ -48,7 +50,7 @@
 	}	?>
 </style>
 
-<section class="featured-sessions-v2 p-t-25 p-b-75">
+<section class="featured-sessions-v2 p-t-25 p-b-75 <?php echo $blockData['cssClass']; ?>">
 	<div class="contain-1100 p-mobile-1150 columns-grid columns-grid-2 column-gap-30 row-gap-30 collapse-800"><?php
 		$tileNumber = 0;
 		foreach($sessions as $session){ ?>

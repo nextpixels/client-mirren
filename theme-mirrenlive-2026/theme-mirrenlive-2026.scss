@@ -91,13 +91,6 @@ h1,h2,h3,h4,p, div, .tile-gray div, .tile-gray p, h2.h2-small,#page #content h1{
 /* Secondary Page Body */	
 
 
-/* CTA Form */
-	body .cta-form-wrapper{
-		background: #fff;
-		background: #F2F2F2;
-	}
-/* CTA Form */
-
 
 /* General Elements */
 	.right-panel{
@@ -127,14 +120,7 @@ h1,h2,h3,h4,p, div, .tile-gray div, .tile-gray p, h2.h2-small,#page #content h1{
 			color: #000;
 		}
 	}
-	body .cta-form{
-		input[type=text],
-		input[type=email]{
-			background: rgba(0,0,0,.05);
-			border: 1px solid rgba(0,0,0,.1);
-			color: #000;
-		}
-	}
+
 /* CTA Footer */
 
 
@@ -159,9 +145,6 @@ h1,h2,h3,h4,p, div, .tile-gray div, .tile-gray p, h2.h2-small,#page #content h1{
 	}
 	body .featured-sessions{
 		background: rgba(0,0,0,.05);
-	}
-	.cta-form-wrapper{
-		background: #fff;
 	}
 	.home-benefits{
 		img{

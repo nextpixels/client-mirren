@@ -46,6 +46,7 @@
     display: inline-block;
     vertical-align: middle;
     margin-top: -15px;
+	max-width: 300px;
 }
 .home-hero-text-intro{
 	padding-bottom: 25px;
@@ -63,7 +64,7 @@
 	padding: 0 0 5px 0;
 }
 .hero-subtitle{
-	background: #0D9EE8;
+	background: #1F2164;
     padding: 3px 10px;
     color: #fff;
     margin-bottom: 25px;
@@ -72,6 +73,7 @@
     font-weight: 700;
 	text-align: center;
 	width: 100%;
+	max-width: 300px;
 }
 @media(max-width: 600px){
 	.hero-subtitle{
