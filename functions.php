@@ -135,6 +135,25 @@ add_filter( 'tec_event_automator_zapier_max_queue_items', function($max_items) {
 				echo ( $track !== '' && $track !== null ) ? esc_html( $track ) : '—';
 			}
 		}
+
+		add_action( 'admin_head-edit.php', 'di_sessions_admin_column_widths' );
+		function di_sessions_admin_column_widths() {
+			$screen = get_current_screen();
+			if ( ! $screen || $screen->post_type !== 'sessions' ) {
+				return;
+			}
+			?>
+			<style>
+				.wp-list-table .column-session_date{
+					width: 180px;
+				}
+				.wp-list-table .column-session_time,
+				.wp-list-table .column-session_track{
+					width: 110px;
+				}
+			</style>
+			<?php
+		}
 	//Admin Columns for Sessions
 
 
