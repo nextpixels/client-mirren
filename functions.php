@@ -701,19 +701,718 @@ function di_custom_woocommerce_empty_cart_action() {
 	}
 }
 
-// Use each bundled product's ACF quantity as its cart input step
-add_filter( 'woocommerce_cart_item_quantity', 'di_bundled_products_quantity_input_adjust', 10, 3 );
-function di_bundled_products_quantity_input_adjust($product_quantity, $cart_item_key, $cart_item){
-	$product_id = $cart_item['product_id'];
-	$is_bundled = get_field( 'bundled_product', $product_id );
-	if ( $is_bundled == 1 ) {
-		$step = max( 1, absint( get_field( 'bundled_quantity', $product_id ) ) );
-		$product_quantity = str_replace( 'class="input-text', 'class="bundled-qty input-text', $product_quantity );
-		$product_quantity = str_replace( 'step="1"', 'step="'. $step .'" onkeydown="return false"', $product_quantity );
-		$product_quantity = str_replace( '</div>', '<input type="number" class="bundled input-text qty text" value="1" aria-label="Product quantity" size="4" min="0" max="" step="1" onkeydown="return false" placeholder="" inputmode="numeric" autocomplete="off"></div>', $product_quantity );
-	}
-	return $product_quantity;
+/**
+ * MirrenDirect complimentary pass promotions + ticket bundle/cart pricing.
+ *
+ * A WooCommerce coupon can be configured through ACF to:
+ *
+ * - Require a normally purchased ticket/pass to already be in the cart.
+ * - Add a configured number of complimentary passes as a separate cart line.
+ * - Force only that promotional line to $0.
+ * - Prevent promotional passes from satisfying normal bundle parent rules.
+ *
+ * ACF coupon fields:
+ *
+ * mirrendirect_promo_enabled
+ * mirrendirect_promo_required_pass
+ * mirrendirect_promo_free_pass
+ * mirrendirect_promo_pass_quantity
+ */
+
+
+/**
+ * Normalize an ACF Post Object / Post ID value to a post ID.
+ *
+ * @param mixed $value ACF field value.
+ * @return int
+ */
+function di_mirrendirect_get_post_id($value)
+{
+    if ($value instanceof WP_Post) {
+        return absint($value->ID);
+    }
+
+    if (is_array($value)) {
+        $value = reset($value);
+
+        if ($value instanceof WP_Post) {
+            return absint($value->ID);
+        }
+    }
+
+    return absint($value);
 }
+
+
+/**
+ * Return the MirrenDirect promotion configuration for a coupon.
+ *
+ * False is returned when the coupon does not have the promotion enabled or
+ * when its required configuration is incomplete.
+ *
+ * @param int|WC_Coupon $coupon Coupon ID or coupon object.
+ * @return array|false
+ */
+function di_get_mirrendirect_promo_config($coupon)
+{
+    if (!function_exists('get_field')) {
+        return false;
+    }
+
+    if ($coupon instanceof WC_Coupon) {
+        $coupon_id = absint($coupon->get_id());
+        $coupon_code = $coupon->get_code();
+    } else {
+        $coupon_id = absint($coupon);
+
+        if (!$coupon_id) {
+            return false;
+        }
+
+        $coupon_object = new WC_Coupon($coupon_id);
+
+        $coupon_code = $coupon_object->get_code();
+    }
+
+    if (
+        !$coupon_id ||
+        !get_field('mirrendirect_promo_enabled', $coupon_id)
+    ) {
+        return false;
+    }
+
+    $required_pass_id = di_mirrendirect_get_post_id(
+        get_field('mirrendirect_promo_required_pass', $coupon_id)
+    );
+
+    $free_pass_id = di_mirrendirect_get_post_id(
+        get_field('mirrendirect_promo_free_pass', $coupon_id)
+    );
+
+    $quantity = max(
+        1,
+        absint(
+            get_field(
+                'mirrendirect_promo_pass_quantity',
+                $coupon_id
+            )
+        )
+    );
+
+    if (
+        !$required_pass_id ||
+        !$free_pass_id ||
+        !$quantity
+    ) {
+        return false;
+    }
+
+    return array(
+        'coupon_id' => $coupon_id,
+        'coupon_code' => wc_format_coupon_code($coupon_code),
+        'required_pass_id' => $required_pass_id,
+        'free_pass_id' => $free_pass_id,
+        'quantity' => $quantity,
+    );
+}
+
+
+/**
+ * Whether a cart item is a MirrenDirect complimentary promo item.
+ *
+ * @param array $cart_item WooCommerce cart item.
+ * @return bool
+ */
+function di_is_mirrendirect_promo_cart_item($cart_item)
+{
+    return !empty($cart_item['_di_mirrendirect_promo']);
+}
+
+
+/**
+ * Return whether a NORMAL/non-promo instance of a product exists in the cart.
+ *
+ * Promotional copies deliberately do not satisfy this check. This is important
+ * when the required pass and complimentary pass are the same product.
+ *
+ * @param WC_Cart $cart       Cart instance.
+ * @param int     $product_id Product ID.
+ * @return bool
+ */
+function di_mirrendirect_cart_has_required_pass($cart, $product_id)
+{
+    $product_id = absint($product_id);
+
+    if (
+        !$product_id ||
+        !$cart instanceof WC_Cart
+    ) {
+        return false;
+    }
+
+    foreach ($cart->get_cart() as $cart_item) {
+        $cart_product_id = isset($cart_item['product_id'])
+            ? absint($cart_item['product_id'])
+            : 0;
+
+        $quantity = isset($cart_item['quantity'])
+            ? (int) $cart_item['quantity']
+            : 0;
+
+        if (
+            $product_id === $cart_product_id &&
+            $quantity > 0 &&
+            !di_is_mirrendirect_promo_cart_item($cart_item)
+        ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/**
+ * Return the promo cart line associated with a coupon.
+ *
+ * @param WC_Cart $cart      Cart instance.
+ * @param int     $coupon_id Coupon post ID.
+ * @return string|false Cart item key or false.
+ */
+function di_mirrendirect_get_promo_cart_item_key($cart, $coupon_id)
+{
+    $coupon_id = absint($coupon_id);
+
+    if (
+        !$coupon_id ||
+        !$cart instanceof WC_Cart
+    ) {
+        return false;
+    }
+
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        if (
+            di_is_mirrendirect_promo_cart_item($cart_item) &&
+            isset($cart_item['_di_mirrendirect_coupon_id']) &&
+            $coupon_id === absint(
+                $cart_item['_di_mirrendirect_coupon_id']
+            )
+        ) {
+            return $cart_item_key;
+        }
+    }
+
+    return false;
+}
+
+
+/**
+ * Synchronize all MirrenDirect promotional cart lines with applied coupons.
+ *
+ * This is intentionally state-driven rather than relying only on the instant
+ * when a coupon is applied. It therefore also handles:
+ *
+ * - Cart/session restoration.
+ * - Cart quantity updates.
+ * - Removal of the qualifying paid pass.
+ * - Removal of the coupon.
+ * - Changes to the configured complimentary pass or quantity.
+ *
+ * @param WC_Cart $cart Cart instance.
+ * @return bool Whether the cart was changed.
+ */
+function di_sync_mirrendirect_promos($cart)
+{
+    static $is_syncing = false;
+
+    if (
+        $is_syncing ||
+        !$cart instanceof WC_Cart ||
+        !function_exists('get_field')
+    ) {
+        return false;
+    }
+
+    $is_syncing = true;
+    $changed = false;
+
+    /*
+     * Build the set of currently applied promo coupons.
+     */
+    $active_promos = array();
+
+    foreach ($cart->get_applied_coupons() as $coupon_code) {
+        $coupon = new WC_Coupon($coupon_code);
+        $config = di_get_mirrendirect_promo_config($coupon);
+
+        if (!$config) {
+            continue;
+        }
+
+        $active_promos[$config['coupon_id']] = $config;
+    }
+
+    /*
+     * First remove promo cart lines that are no longer valid.
+     */
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        if (!di_is_mirrendirect_promo_cart_item($cart_item)) {
+            continue;
+        }
+
+        $coupon_id = isset(
+            $cart_item['_di_mirrendirect_coupon_id']
+        )
+            ? absint($cart_item['_di_mirrendirect_coupon_id'])
+            : 0;
+
+        /*
+         * Promo cart item no longer belongs to an active configured coupon.
+         */
+        if (
+            !$coupon_id ||
+            !isset($active_promos[$coupon_id])
+        ) {
+            if ($cart->remove_cart_item($cart_item_key)) {
+                $changed = true;
+            }
+
+            continue;
+        }
+
+        $config = $active_promos[$coupon_id];
+
+        /*
+         * The qualifying paid pass no longer exists.
+         */
+        if (
+            !di_mirrendirect_cart_has_required_pass(
+                $cart,
+                $config['required_pass_id']
+            )
+        ) {
+            if ($cart->remove_cart_item($cart_item_key)) {
+                $changed = true;
+            }
+
+            continue;
+        }
+
+        /*
+         * The coupon configuration may have been changed while the cart was
+         * persisted in a session. Remove the old promo line so the correct
+         * product can be inserted below.
+         */
+        $cart_product_id = isset($cart_item['product_id'])
+            ? absint($cart_item['product_id'])
+            : 0;
+
+        if ($config['free_pass_id'] !== $cart_product_id) {
+            if ($cart->remove_cart_item($cart_item_key)) {
+                $changed = true;
+            }
+        }
+    }
+
+    /*
+     * Ensure each valid applied promo coupon has exactly one complimentary
+     * cart line at exactly its configured quantity.
+     */
+    foreach ($active_promos as $coupon_id => $config) {
+        $has_required_pass = di_mirrendirect_cart_has_required_pass(
+            $cart,
+            $config['required_pass_id']
+        );
+
+        $promo_cart_item_key =
+            di_mirrendirect_get_promo_cart_item_key(
+                $cart,
+                $coupon_id
+            );
+
+        /*
+         * If the qualifying paid pass was removed, remove the coupon itself.
+         *
+         * The promo item, if present, was already removed above.
+         */
+        if (!$has_required_pass) {
+            if (
+                $config['coupon_code'] &&
+                $cart->has_discount($config['coupon_code'])
+            ) {
+                $cart->remove_coupon($config['coupon_code']);
+                $changed = true;
+            }
+
+            continue;
+        }
+
+        /*
+         * Add the complimentary pass as a distinct cart line.
+         *
+         * Custom cart item data causes WooCommerce to generate a different
+         * cart-item key even when the required and free products are the same.
+         */
+        if (false === $promo_cart_item_key) {
+            $promo_cart_item_key = $cart->add_to_cart(
+                $config['free_pass_id'],
+                $config['quantity'],
+                0,
+                array(),
+                array(
+                    '_di_mirrendirect_promo' => 1,
+                    '_di_mirrendirect_coupon_id' => $coupon_id,
+                )
+            );
+
+            if ($promo_cart_item_key) {
+                $changed = true;
+            }
+
+            continue;
+        }
+
+        /*
+         * Lock an existing promo cart item to the configured quantity.
+         */
+        $current_quantity = isset(
+            $cart->cart_contents[
+                $promo_cart_item_key
+            ]['quantity']
+        )
+            ? (int) $cart->cart_contents[
+                $promo_cart_item_key
+            ]['quantity']
+            : 0;
+
+        if ($config['quantity'] !== $current_quantity) {
+            $cart->set_quantity(
+                $promo_cart_item_key,
+                $config['quantity'],
+                false
+            );
+
+            $changed = true;
+        }
+    }
+
+    $is_syncing = false;
+
+    return $changed;
+}
+
+
+/**
+ * Require the configured paid pass before a MirrenDirect promo coupon can be
+ * applied.
+ *
+ * @param bool      $valid  Whether WooCommerce currently considers it valid.
+ * @param WC_Coupon $coupon Coupon object.
+ * @return bool
+ */
+function di_validate_mirrendirect_promo_coupon($valid, $coupon)
+{
+    if (
+        !$valid ||
+        !$coupon instanceof WC_Coupon ||
+        !function_exists('WC') ||
+        !WC()->cart instanceof WC_Cart
+    ) {
+        return $valid;
+    }
+
+    $config = di_get_mirrendirect_promo_config($coupon);
+
+    if (!$config) {
+        return $valid;
+    }
+
+    return di_mirrendirect_cart_has_required_pass(
+        WC()->cart,
+        $config['required_pass_id']
+    );
+}
+add_filter(
+    'woocommerce_coupon_is_valid',
+    'di_validate_mirrendirect_promo_coupon',
+    20,
+    2
+);
+
+
+/**
+ * Immediately synchronize complimentary passes after a coupon is applied.
+ *
+ * @param string $coupon_code Coupon code.
+ */
+function di_sync_mirrendirect_promo_after_coupon_applied($coupon_code)
+{
+    if (
+        function_exists('WC') &&
+        WC()->cart instanceof WC_Cart
+    ) {
+        di_sync_mirrendirect_promos(WC()->cart);
+    }
+}
+add_action(
+    'woocommerce_applied_coupon',
+    'di_sync_mirrendirect_promo_after_coupon_applied',
+    20
+);
+
+
+/**
+ * Immediately remove/synchronize complimentary passes after coupon removal.
+ *
+ * @param string $coupon_code Coupon code.
+ */
+function di_sync_mirrendirect_promo_after_coupon_removed($coupon_code)
+{
+    if (
+        function_exists('WC') &&
+        WC()->cart instanceof WC_Cart
+    ) {
+        di_sync_mirrendirect_promos(WC()->cart);
+    }
+}
+add_action(
+    'woocommerce_removed_coupon',
+    'di_sync_mirrendirect_promo_after_coupon_removed',
+    20
+);
+
+
+/**
+ * Restore/synchronize promotional cart state when the cart is loaded.
+ *
+ * @param WC_Cart $cart Cart instance.
+ */
+function di_sync_mirrendirect_promos_from_session($cart)
+{
+    di_sync_mirrendirect_promos($cart);
+}
+add_action(
+    'woocommerce_cart_loaded_from_session',
+    'di_sync_mirrendirect_promos_from_session',
+    20
+);
+
+
+/**
+ * Define a custom error message for MirrenDirect Promo requirements.
+ */
+add_filter(
+	'woocommerce_coupon_error',
+	'di_mirrendirect_promo_coupon_error',
+	20,
+	3
+);
+function di_mirrendirect_promo_coupon_error(
+	$error_message,
+	$error_code,
+	$coupon
+) {
+	if (
+		! $coupon instanceof WC_Coupon ||
+		! function_exists( 'di_get_mirrendirect_promo_config' ) ||
+		! function_exists( 'di_mirrendirect_cart_has_required_pass' ) ||
+		! function_exists( 'WC' ) ||
+		! WC()->cart instanceof WC_Cart
+	) {
+		return $error_message;
+	}
+
+	$config = di_get_mirrendirect_promo_config( $coupon );
+
+	/*
+	 * Not one of our promo coupons.
+	 */
+	if ( ! $config ) {
+		return $error_message;
+	}
+
+	/*
+	 * Only replace the generic error generated when our custom validation
+	 * filter rejects the coupon.
+	 */
+	if (
+		WC_Coupon::E_WC_COUPON_INVALID_FILTERED !== $error_code
+	) {
+		return $error_message;
+	}
+
+	/*
+	 * Make sure the promo actually failed because its required pass is
+	 * missing.
+	 */
+	if (
+		di_mirrendirect_cart_has_required_pass(
+			WC()->cart,
+			$config['required_pass_id']
+		)
+	) {
+		return $error_message;
+	}
+
+	$required_pass = wc_get_product(
+		$config['required_pass_id']
+	);
+
+	if ( ! $required_pass instanceof WC_Product ) {
+		return $error_message;
+	}
+
+	return sprintf(
+		'Please add the %s to your cart first.',
+		esc_html( $required_pass->get_name() )
+	);
+}
+
+
+/**
+ * Define a custom discount message for MirrenDirect Promos in the cart totals (instead of a $dollar amount).
+ */
+add_filter(
+	'woocommerce_coupon_discount_amount_html',
+	'di_mirrendirect_promo_coupon_discount_html',
+	20,
+	2
+);
+function di_mirrendirect_promo_coupon_discount_html(
+	$discount_html,
+	$coupon
+) {
+	if (
+		! $coupon instanceof WC_Coupon ||
+		! function_exists( 'di_get_mirrendirect_promo_config' )
+	) {
+		return $discount_html;
+	}
+
+	/*
+	 * Only alter coupons configured as MirrenDirect promo coupons.
+	 */
+	$config = di_get_mirrendirect_promo_config( $coupon );
+
+	if ( ! $config ) {
+		return $discount_html;
+	}
+
+	$free_pass = wc_get_product(
+		$config['free_pass_id']
+	);
+
+	if ( ! $free_pass instanceof WC_Product ) {
+		return $discount_html;
+	}
+
+	return sprintf(
+		'%s: %d Free',
+		esc_html( $free_pass->get_name() ),
+		absint( $config['quantity'] )
+	);
+}
+
+
+/**
+ * Use each bundled product's ACF quantity as its cart input step.
+ *
+ * MirrenDirect complimentary lines are locked to their configured quantity
+ * and deliberately bypass normal bundle quantity controls.
+ */
+add_filter(
+    'woocommerce_cart_item_quantity',
+    'di_bundled_products_quantity_input_adjust',
+    10,
+    3
+);
+function di_bundled_products_quantity_input_adjust(
+    $product_quantity,
+    $cart_item_key,
+    $cart_item
+) {
+    /*
+     * Complimentary pass quantities cannot be manually modified.
+     */
+    if (di_is_mirrendirect_promo_cart_item($cart_item)) {
+        $quantity = isset($cart_item['quantity'])
+            ? max(1, absint($cart_item['quantity']))
+            : 1;
+
+        return sprintf(
+            '%1$d<input type="hidden" name="cart[%2$s][qty]" value="%1$d">',
+            $quantity,
+            esc_attr($cart_item_key)
+        );
+    }
+
+    $product_id = isset($cart_item['product_id'])
+        ? absint($cart_item['product_id'])
+        : 0;
+
+    $is_bundled = $product_id
+        ? get_field('bundled_product', $product_id)
+        : false;
+
+    if (1 == $is_bundled) {
+        $step = max(
+            1,
+            absint(get_field('bundled_quantity', $product_id))
+        );
+
+        $product_quantity = str_replace(
+            'class="input-text',
+            'class="bundled-qty input-text',
+            $product_quantity
+        );
+
+        $product_quantity = str_replace(
+            'step="1"',
+            'step="' . $step . '" onkeydown="return false"',
+            $product_quantity
+        );
+
+        $product_quantity = str_replace(
+            '</div>',
+            '<input type="number" class="bundled input-text qty text" value="1" aria-label="Product quantity" size="4" min="0" max="" step="1" onkeydown="return false" placeholder="" inputmode="numeric" autocomplete="off"></div>',
+            $product_quantity
+        );
+    }
+
+    return $product_quantity;
+}
+
+
+/**
+ * Remove the cart "remove" link from complimentary promo lines.
+ */
+add_filter(
+    'woocommerce_cart_item_remove_link',
+    'di_hide_mirrendirect_promo_remove_link',
+    20,
+    2
+);
+function di_hide_mirrendirect_promo_remove_link(
+    $remove_link,
+    $cart_item_key
+) {
+    if (
+        !function_exists('WC') ||
+        !WC()->cart instanceof WC_Cart ||
+        !isset(WC()->cart->cart_contents[$cart_item_key])
+    ) {
+        return $remove_link;
+    }
+
+    $cart_item = WC()->cart->cart_contents[$cart_item_key];
+
+    if (di_is_mirrendirect_promo_cart_item($cart_item)) {
+        return '';
+    }
+
+    return $remove_link;
+}
+
 
 /**
  * Return the ticket product IDs a user has purchased for an event.
@@ -727,213 +1426,289 @@ function di_bundled_products_quantity_input_adjust($product_quantity, $cart_item
  * @return array Purchased product IDs keyed by product ID.
  */
 function di_get_user_purchased_event_ticket_product_ids(
-	$event_id,
-	$user_id = 0
+    $event_id,
+    $user_id = 0
 ) {
-	static $purchased_product_ids_by_user_event = array();
+    static $purchased_product_ids_by_user_event = array();
 
-	$event_id = absint( $event_id );
-	$user_id  = $user_id ? absint( $user_id ) : get_current_user_id();
+    $event_id = absint($event_id);
+    $user_id = $user_id ? absint($user_id) : get_current_user_id();
 
-	if (
-		! $event_id ||
-		! $user_id ||
-		! class_exists( 'Tribe__Tickets__Tickets_View' )
-	) {
-		return array();
-	}
+    if (
+        !$event_id ||
+        !$user_id ||
+        !class_exists('Tribe__Tickets__Tickets_View')
+    ) {
+        return array();
+    }
 
-	$cache_key = $user_id . ':' . $event_id;
+    $cache_key = $user_id . ':' . $event_id;
 
-	if ( isset( $purchased_product_ids_by_user_event[ $cache_key ] ) ) {
-		return $purchased_product_ids_by_user_event[ $cache_key ];
-	}
+    if (isset($purchased_product_ids_by_user_event[$cache_key])) {
+        return $purchased_product_ids_by_user_event[$cache_key];
+    }
 
-	$purchased_product_ids = array();
-	$view                  = Tribe__Tickets__Tickets_View::instance();
-	$orders                = $view->get_event_attendees_by_order(
-		$event_id,
-		$user_id
-	);
+    $purchased_product_ids = array();
+    $view = Tribe__Tickets__Tickets_View::instance();
+    $orders = $view->get_event_attendees_by_order(
+        $event_id,
+        $user_id
+    );
 
-	if ( is_array( $orders ) ) {
-		foreach ( $orders as $tickets ) {
-			if ( ! is_array( $tickets ) ) {
-				continue;
-			}
+    if (is_array($orders)) {
+        foreach ($orders as $tickets) {
+            if (!is_array($tickets)) {
+                continue;
+            }
 
-			foreach ( $tickets as $ticket ) {
-				$product_id = isset( $ticket['product_id'] )
-					? absint( $ticket['product_id'] )
-					: 0;
+            foreach ($tickets as $ticket) {
+                $product_id = isset($ticket['product_id'])
+                    ? absint($ticket['product_id'])
+                    : 0;
 
-				if ( $product_id ) {
-					$purchased_product_ids[ $product_id ] = true;
-				}
-			}
-		}
-	}
+                if ($product_id) {
+                    $purchased_product_ids[$product_id] = true;
+                }
+            }
+        }
+    }
 
-	$purchased_product_ids_by_user_event[ $cache_key ] =
-		$purchased_product_ids;
+    $purchased_product_ids_by_user_event[$cache_key] =
+        $purchased_product_ids;
 
-	return $purchased_product_ids;
+    return $purchased_product_ids;
 }
+
 
 /**
  * Remove bundled add-ons whose configured parent is neither in the cart nor
  * previously purchased by the current user.
  *
- * This runs after WooCommerce processes the submitted cart quantities and when
- * the cart is loaded as a fallback for a stale session that already contains an
- * orphaned add-on.
+ * MirrenDirect promotional passes are special standalone instances:
+ *
+ * - They do NOT satisfy another bundled item's parent requirement.
+ * - They are NOT themselves removed for lacking a normal parent.
  *
  * @param WC_Cart $cart Cart instance.
  * @return bool Whether at least one orphaned add-on was removed.
  */
-function di_remove_orphaned_bundled_cart_items( $cart ) {
-	static $is_syncing = false;
+function di_remove_orphaned_bundled_cart_items($cart)
+{
+    static $is_syncing = false;
 
-	if (
-		$is_syncing ||
-		! $cart instanceof WC_Cart ||
-		! function_exists( 'get_field' )
-	) {
-		return false;
-	}
+    if (
+        $is_syncing ||
+        !$cart instanceof WC_Cart ||
+        !function_exists('get_field')
+    ) {
+        return false;
+    }
 
-	$is_syncing                  = true;
-	$removed_any                 = false;
-	$user_id                     = get_current_user_id();
-	$purchased_products_by_event = array();
+    $is_syncing = true;
+    $removed_any = false;
+    $user_id = get_current_user_id();
+    $purchased_products_by_event = array();
 
-	do {
-		$removed_item       = false;
-		$cart_product_ids   = array();
-		$cart_items         = $cart->get_cart();
+    do {
+        $removed_item = false;
+        $cart_product_ids = array();
+        $cart_items = $cart->get_cart();
 
-		foreach ( $cart_items as $cart_item ) {
-			$product_id = isset( $cart_item['product_id'] )
-				? absint( $cart_item['product_id'] )
-				: 0;
+        /*
+         * Only NORMAL cart items can satisfy a bundle parent requirement.
+         *
+         * Promotional passes are deliberately excluded.
+         */
+        foreach ($cart_items as $cart_item) {
+            if (di_is_mirrendirect_promo_cart_item($cart_item)) {
+                continue;
+            }
 
-			$quantity = isset( $cart_item['quantity'] )
-				? (int) $cart_item['quantity']
-				: 0;
+            $product_id = isset($cart_item['product_id'])
+                ? absint($cart_item['product_id'])
+                : 0;
 
-			if ( $product_id && $quantity > 0 ) {
-				$cart_product_ids[ $product_id ] = true;
-			}
-		}
+            $quantity = isset($cart_item['quantity'])
+                ? (int) $cart_item['quantity']
+                : 0;
 
-		foreach ( $cart_items as $cart_item_key => $cart_item ) {
-			$product_id = isset( $cart_item['product_id'] )
-				? absint( $cart_item['product_id'] )
-				: 0;
+            if ($product_id && $quantity > 0) {
+                $cart_product_ids[$product_id] = true;
+            }
+        }
 
-			if (
-				! $product_id ||
-				! get_field( 'bundled_product', $product_id )
-			) {
-				continue;
-			}
+        foreach ($cart_items as $cart_item_key => $cart_item) {
+            /*
+             * Promotional items are standalone promo instances and bypass the
+             * normal parent requirement entirely.
+             */
+            if (di_is_mirrendirect_promo_cart_item($cart_item)) {
+                continue;
+            }
 
-			$parent_id = absint(
-				get_field( 'parent_id', $product_id )
-			);
+            $product_id = isset($cart_item['product_id'])
+                ? absint($cart_item['product_id'])
+                : 0;
 
-			if (
-				! $parent_id ||
-				isset( $cart_product_ids[ $parent_id ] )
-			) {
-				continue;
-			}
+            if (
+                !$product_id ||
+                !get_field('bundled_product', $product_id)
+            ) {
+                continue;
+            }
 
-			/*
-			 * A logged-in purchaser may buy additional standalone bundles from
-			 * the event's ticket-management page after buying the parent ticket.
-			 */
-			$parent_event_id = absint(
-				get_post_meta(
-					$parent_id,
-					'_tribe_wooticket_for_event',
-					true
-				)
-			);
+            $parent_id = absint(
+                get_field('parent_id', $product_id)
+            );
 
-			if ( $user_id && $parent_event_id ) {
-				if (
-					! isset(
-						$purchased_products_by_event[
-							$parent_event_id
-						]
-					)
-				) {
-					$purchased_products_by_event[ $parent_event_id ] =
-						di_get_user_purchased_event_ticket_product_ids(
-							$parent_event_id,
-							$user_id
-						);
-				}
+            if (
+                !$parent_id ||
+                isset($cart_product_ids[$parent_id])
+            ) {
+                continue;
+            }
 
-				if (
-					isset(
-						$purchased_products_by_event[
-							$parent_event_id
-						][ $parent_id ]
-					)
-				) {
-					continue;
-				}
-			}
+            /*
+             * A logged-in purchaser may buy additional standalone bundles from
+             * the event's ticket-management page after buying the parent ticket.
+             */
+            $parent_event_id = absint(
+                get_post_meta(
+                    $parent_id,
+                    '_tribe_wooticket_for_event',
+                    true
+                )
+            );
 
-			if ( $cart->remove_cart_item( $cart_item_key ) ) {
-				$removed_item = true;
-				$removed_any  = true;
-			}
-		}
-	} while ( $removed_item );
+            if ($user_id && $parent_event_id) {
+                if (
+                    !isset(
+                    $purchased_products_by_event[
+                        $parent_event_id
+                    ]
+                )
+                ) {
+                    $purchased_products_by_event[
+                        $parent_event_id
+                    ] = di_get_user_purchased_event_ticket_product_ids(
+                        $parent_event_id,
+                        $user_id
+                    );
+                }
 
-	$is_syncing = false;
+                if (
+                    isset(
+                    $purchased_products_by_event[
+                        $parent_event_id
+                    ][$parent_id]
+                )
+                ) {
+                    continue;
+                }
+            }
 
-	return $removed_any;
+            if ($cart->remove_cart_item($cart_item_key)) {
+                $removed_item = true;
+                $removed_any = true;
+            }
+        }
+    } while ($removed_item);
+
+    $is_syncing = false;
+
+    return $removed_any;
 }
 
+
 /**
- * Remove orphaned add-ons after WooCommerce applies the Update cart request.
+ * After WooCommerce processes an Update cart request:
  *
- * At this point a submitted parent quantity of zero has already removed the
- * parent from the cart, so the ACF parent_id relationship can be evaluated
- * against the final submitted cart state. A child is retained when the current
- * user already purchased that parent ticket for the same event.
+ * 1. Remove orphaned bundled items.
+ * 2. Re-synchronize MirrenDirect promotional passes.
  *
  * @param bool $cart_updated Whether WooCommerce changed the cart.
  * @return bool
  */
-function di_remove_orphaned_bundled_cart_items_after_update( $cart_updated ) {
-	if (
-		function_exists( 'WC' ) &&
-		WC()->cart instanceof WC_Cart &&
-		di_remove_orphaned_bundled_cart_items( WC()->cart )
-	) {
-		$cart_updated = true;
-	}
+function di_remove_orphaned_bundled_cart_items_after_update(
+    $cart_updated
+) {
+    if (
+        !function_exists('WC') ||
+        !WC()->cart instanceof WC_Cart
+    ) {
+        return $cart_updated;
+    }
 
-	return $cart_updated;
+    if (di_remove_orphaned_bundled_cart_items(WC()->cart)) {
+        $cart_updated = true;
+    }
+
+    if (di_sync_mirrendirect_promos(WC()->cart)) {
+        $cart_updated = true;
+    }
+
+    return $cart_updated;
 }
 
 add_filter(
-	'woocommerce_update_cart_action_cart_updated',
-	'di_remove_orphaned_bundled_cart_items_after_update'
+    'woocommerce_update_cart_action_cart_updated',
+    'di_remove_orphaned_bundled_cart_items_after_update'
 );
 
+
+/**
+ * Run bundle validation when restoring a cart session.
+ *
+ * MirrenDirect promo synchronization itself runs separately at priority 20.
+ */
 add_action(
-	'woocommerce_cart_loaded_from_session',
-	'di_remove_orphaned_bundled_cart_items',
-	10
+    'woocommerce_cart_loaded_from_session',
+    'di_remove_orphaned_bundled_cart_items',
+    10
 );
+
+
+/**
+ * Store the promotional marker on the WooCommerce order line item.
+ *
+ * The underscore-prefixed metadata stays hidden from normal customer-facing
+ * order meta output but gives us a durable way to identify complimentary lines
+ * later if needed.
+ */
+add_action(
+    'woocommerce_checkout_create_order_line_item',
+    'di_save_mirrendirect_promo_order_item_meta',
+    20,
+    4
+);
+function di_save_mirrendirect_promo_order_item_meta(
+    $item,
+    $cart_item_key,
+    $values,
+    $order
+) {
+    if (!di_is_mirrendirect_promo_cart_item($values)) {
+        return;
+    }
+
+    $item->add_meta_data(
+        '_di_mirrendirect_promo',
+        1,
+        true
+    );
+
+    if (!empty($values['_di_mirrendirect_coupon_id'])) {
+        $item->add_meta_data(
+            '_di_mirrendirect_coupon_id',
+            absint($values['_di_mirrendirect_coupon_id']),
+            true
+        );
+    }
+}
+
 
 // ACF-first ticket pricing.
+
 /**
  * Normalize an ACF or WooCommerce price value.
  *
@@ -944,33 +1719,35 @@ add_action(
  * @param mixed $raw_price Raw price value.
  * @return float|false
  */
-function di_normalize_ticket_price( $raw_price ) {
-	if (
-		false === $raw_price ||
-		null === $raw_price ||
-		is_array( $raw_price ) ||
-		is_object( $raw_price )
-	) {
-		return false;
-	}
+function di_normalize_ticket_price($raw_price)
+{
+    if (
+        false === $raw_price ||
+        null === $raw_price ||
+        is_array($raw_price) ||
+        is_object($raw_price)
+    ) {
+        return false;
+    }
 
-	$price = trim( (string) $raw_price );
+    $price = trim((string) $raw_price);
 
-	if ( '' === $price ) {
-		return false;
-	}
+    if ('' === $price) {
+        return false;
+    }
 
-	$price = str_replace( ',', '', $price );
-	$price = preg_replace( '/[^\d.\-]/', '', $price );
+    $price = str_replace(',', '', $price);
+    $price = preg_replace('/[^\d.\-]/', '', $price);
 
-	if ( ! is_numeric( $price ) ) {
-		return false;
-	}
+    if (!is_numeric($price)) {
+        return false;
+    }
 
-	$price = (float) $price;
+    $price = (float) $price;
 
-	return $price >= 0 ? $price : false;
+    return $price >= 0 ? $price : false;
 }
+
 
 /**
  * Return one normalized ACF ticket-price field.
@@ -979,113 +1756,142 @@ function di_normalize_ticket_price( $raw_price ) {
  * @param string $field_name ACF field name.
  * @return float|false
  */
-function di_get_ticket_acf_price( $product_id, $field_name ) {
-	if (
-		! function_exists( 'get_field' ) ||
-		! in_array( $field_name, array( 'sale_price', 'normal_price' ), true )
-	) {
-		return false;
-	}
+function di_get_ticket_acf_price($product_id, $field_name)
+{
+    if (
+        !function_exists('get_field') ||
+        !in_array(
+            $field_name,
+            array('sale_price', 'normal_price'),
+            true
+        )
+    ) {
+        return false;
+    }
 
-	return di_normalize_ticket_price(
-		get_field( $field_name, absint( $product_id ) )
-	);
+    return di_normalize_ticket_price(
+        get_field($field_name, absint($product_id))
+    );
 }
+
 
 /**
  * Return the raw attendee quantity represented by one displayed purchase.
  *
  * Standard tickets use one. Bundled tickets use their ACF bundled_quantity.
  *
+ * MirrenDirect promotional quantity is intentionally NOT resolved through this
+ * helper. Its configured promo quantity represents literal ticket/attendee
+ * quantity.
+ *
  * @param int $product_id Product/ticket ID.
  * @return int
  */
-function di_get_ticket_quantity_step( $product_id ) {
-	if (
-		! function_exists( 'get_field' ) ||
-		! get_field( 'bundled_product', absint( $product_id ) )
-	) {
-		return 1;
-	}
+function di_get_ticket_quantity_step($product_id)
+{
+    if (
+        !function_exists('get_field') ||
+        !get_field('bundled_product', absint($product_id))
+    ) {
+        return 1;
+    }
 
-	return max(
-		1,
-		absint( get_field( 'bundled_quantity', absint( $product_id ) ) )
-	);
+    return max(
+        1,
+        absint(
+            get_field(
+                'bundled_quantity',
+                absint($product_id)
+            )
+        )
+    );
 }
+
 
 /**
  * Resolve the authoritative price for any ticket product.
  *
  * Fallback order:
+ *
  * 1. ACF sale_price.
  * 2. ACF normal_price.
- * 3. The native WooCommerce/Event Tickets price.
- *
- * A bundled ACF price is the exact price for one displayed bundle. Its unit
- * price is divided by bundled_quantity because WooCommerce stores the raw
- * attendee-ticket quantity in the cart. A native fallback is already a unit
- * price, so it is multiplied only for the customer-facing bundle display.
+ * 3. Native WooCommerce/Event Tickets price.
  *
  * @param int   $product_id         Product/ticket ID.
  * @param mixed $default_unit_price Optional native unit price.
  * @return array|false
  */
-function di_get_ticket_pricing( $product_id, $default_unit_price = false ) {
-	$product_id = absint( $product_id );
+function di_get_ticket_pricing(
+    $product_id,
+    $default_unit_price = false
+) {
+    $product_id = absint($product_id);
 
-	if ( ! $product_id ) {
-		return false;
-	}
+    if (!$product_id) {
+        return false;
+    }
 
-	$quantity_step    = di_get_ticket_quantity_step( $product_id );
-	$acf_sale_price   = di_get_ticket_acf_price( $product_id, 'sale_price' );
-	$acf_normal_price = di_get_ticket_acf_price( $product_id, 'normal_price' );
-	$source            = 'default';
+    $quantity_step = di_get_ticket_quantity_step($product_id);
+    $acf_sale_price = di_get_ticket_acf_price(
+        $product_id,
+        'sale_price'
+    );
+    $acf_normal_price = di_get_ticket_acf_price(
+        $product_id,
+        'normal_price'
+    );
+    $source = 'default';
 
-	if ( false !== $acf_sale_price ) {
-		$display_price = $acf_sale_price;
-		$source        = 'sale_price';
-	} elseif ( false !== $acf_normal_price ) {
-		$display_price = $acf_normal_price;
-		$source        = 'normal_price';
-	} else {
-		$default_unit_price = di_normalize_ticket_price(
-			$default_unit_price
-		);
+    if (false !== $acf_sale_price) {
+        $display_price = $acf_sale_price;
+        $source = 'sale_price';
+    } elseif (false !== $acf_normal_price) {
+        $display_price = $acf_normal_price;
+        $source = 'normal_price';
+    } else {
+        $default_unit_price = di_normalize_ticket_price(
+            $default_unit_price
+        );
 
-		if ( false === $default_unit_price && function_exists( 'wc_get_product' ) ) {
-			$default_product = wc_get_product( $product_id );
+        if (
+            false === $default_unit_price &&
+            function_exists('wc_get_product')
+        ) {
+            $default_product = wc_get_product($product_id);
 
-			if ( $default_product instanceof WC_Product ) {
-				$default_unit_price = di_normalize_ticket_price(
-					$default_product->get_price( 'edit' )
-				);
+            if ($default_product instanceof WC_Product) {
+                $default_unit_price = di_normalize_ticket_price(
+                    $default_product->get_price('edit')
+                );
 
-				if ( false === $default_unit_price ) {
-					$default_unit_price = di_normalize_ticket_price(
-						$default_product->get_regular_price( 'edit' )
-					);
-				}
-			}
-		}
+                if (false === $default_unit_price) {
+                    $default_unit_price =
+                        di_normalize_ticket_price(
+                            $default_product->get_regular_price(
+                                'edit'
+                            )
+                        );
+                }
+            }
+        }
 
-		if ( false === $default_unit_price ) {
-			return false;
-		}
+        if (false === $default_unit_price) {
+            return false;
+        }
 
-		$display_price = $default_unit_price * $quantity_step;
-	}
+        $display_price = $default_unit_price * $quantity_step;
+    }
 
-	return array(
-		'source'           => $source,
-		'display_price'    => $display_price,
-		'unit_price'       => $display_price / $quantity_step,
-		'quantity_step'    => $quantity_step,
-		'acf_sale_price'   => $acf_sale_price,
-		'acf_normal_price' => $acf_normal_price,
-	);
+    return array(
+        'source' => $source,
+        'display_price' => $display_price,
+        'unit_price' => $display_price / $quantity_step,
+        'quantity_step' => $quantity_step,
+        'acf_sale_price' => $acf_sale_price,
+        'acf_normal_price' => $acf_normal_price,
+    );
 }
+
 
 /**
  * Return authoritative pricing for a WooCommerce cart item.
@@ -1093,95 +1899,171 @@ function di_get_ticket_pricing( $product_id, $default_unit_price = false ) {
  * @param array $cart_item WooCommerce cart item.
  * @return array|false
  */
-function di_get_cart_item_ticket_pricing( $cart_item ) {
-	if (
-		empty( $cart_item['product_id'] ) ||
-		empty( $cart_item['data'] ) ||
-		! $cart_item['data'] instanceof WC_Product
-	) {
-		return false;
-	}
+function di_get_cart_item_ticket_pricing($cart_item)
+{
+    if (
+        empty($cart_item['product_id']) ||
+        empty($cart_item['data']) ||
+        !$cart_item['data'] instanceof WC_Product
+    ) {
+        return false;
+    }
 
-	return di_get_ticket_pricing( absint( $cart_item['product_id'] ) );
+    return di_get_ticket_pricing(
+        absint($cart_item['product_id'])
+    );
 }
+
 
 /**
  * Set the internal per-ticket price before WooCommerce calculates cart totals.
  *
- * This applies to bundled and standard tickets alike. Checkout and order-item
- * totals inherit this value, so later order details and emails retain the exact
- * price paid even if the product's ACF fields change.
+ * MirrenDirect promotional cart lines are forced to $0 before the normal
+ * ACF-first resolver runs.
+ *
+ * The promotional product object is cloned before changing its price because
+ * the paid and complimentary lines may use the exact same WooCommerce product.
+ *
+ * @param WC_Cart $cart Cart instance.
  */
 add_action(
-	'woocommerce_before_calculate_totals',
-	'di_force_exact_ticket_prices',
-	9999
+    'woocommerce_before_calculate_totals',
+    'di_force_exact_ticket_prices',
+    9999
 );
-function di_force_exact_ticket_prices( $cart ) {
-	if (
-		( is_admin() && ! defined( 'DOING_AJAX' ) ) ||
-		! $cart instanceof WC_Cart
-	) {
-		return;
-	}
+function di_force_exact_ticket_prices($cart)
+{
+    if (
+        (is_admin() && !defined('DOING_AJAX')) ||
+        !$cart instanceof WC_Cart
+    ) {
+        return;
+    }
 
-	foreach ( $cart->get_cart() as $cart_item ) {
-		$pricing = di_get_cart_item_ticket_pricing( $cart_item );
+    foreach (
+        $cart->get_cart()
+        as $cart_item_key => $cart_item
+    ) {
+        /*
+         * Complimentary promotional line.
+         */
+        if (di_is_mirrendirect_promo_cart_item($cart_item)) {
+            if (
+                isset(
+                $cart->cart_contents[
+                    $cart_item_key
+                ]['data']
+            ) &&
+                $cart->cart_contents[
+                    $cart_item_key
+                ]['data'] instanceof WC_Product
+            ) {
+                $cart->cart_contents[
+                    $cart_item_key
+                ]['data'] = clone $cart->cart_contents[
+                        $cart_item_key
+                    ]['data'];
 
-		if ( ! $pricing || 'default' === $pricing['source'] ) {
-			continue;
-		}
+                $cart->cart_contents[
+                $cart_item_key
+                ]['data']->set_price(0);
+            }
 
-		$cart_item['data']->set_price(
-			$pricing['unit_price']
-		);
-	}
+            continue;
+        }
+
+        $pricing = di_get_cart_item_ticket_pricing(
+            $cart_item
+        );
+
+        if (
+            !$pricing ||
+            'default' === $pricing['source']
+        ) {
+            continue;
+        }
+
+        $cart->cart_contents[
+        $cart_item_key
+        ]['data']->set_price(
+                $pricing['unit_price']
+            );
+    }
 }
+
+
 /**
  * Display the configured purchase price in the cart's Price column.
+ *
+ * Complimentary promo lines always display $0.
  *
  * Bundled rows show the price for one displayed bundle rather than the
  * internal per-attendee unit price. Standard rows show the selected ACF price.
  */
 add_filter(
-	'woocommerce_cart_item_price',
-	'di_display_exact_ticket_cart_price',
-	9999,
-	3
+    'woocommerce_cart_item_price',
+    'di_display_exact_ticket_cart_price',
+    9999,
+    3
 );
 function di_display_exact_ticket_cart_price(
-	$price_html,
-	$cart_item,
-	$cart_item_key
+    $price_html,
+    $cart_item,
+    $cart_item_key
 ) {
-	$pricing = di_get_cart_item_ticket_pricing( $cart_item );
+    if (
+        !function_exists('WC') ||
+        !WC()->cart
+    ) {
+        return $price_html;
+    }
 
-	if (
-		! $pricing ||
-		! function_exists( 'WC' ) ||
-		! WC()->cart
-	) {
-		return $price_html;
-	}
+    /*
+     * Promotional passes always show a $0 unit price.
+     */
+    if (di_is_mirrendirect_promo_cart_item($cart_item)) {
+        if (
+            empty($cart_item['data']) ||
+            !$cart_item['data'] instanceof WC_Product
+        ) {
+            return wc_price(0);
+        }
 
-	if (
-		'default' === $pricing['source'] &&
-		1 === $pricing['quantity_step']
-	) {
-		return $price_html;
-	}
+        $display_product = clone $cart_item['data'];
+        $display_product->set_price(0);
 
-	$display_product = clone $cart_item['data'];
+        return WC()->cart->get_product_price(
+            $display_product
+        );
+    }
 
-	$display_product->set_price(
-		$pricing['display_price']
-	);
+    $pricing = di_get_cart_item_ticket_pricing(
+        $cart_item
+    );
 
-	return WC()->cart->get_product_price(
-		$display_product
-	);
+    if (!$pricing) {
+        return $price_html;
+    }
+
+    if (
+        'default' === $pricing['source'] &&
+        1 === $pricing['quantity_step']
+    ) {
+        return $price_html;
+    }
+
+    $display_product = clone $cart_item['data'];
+
+    $display_product->set_price(
+        $pricing['display_price']
+    );
+
+    return WC()->cart->get_product_price(
+        $display_product
+    );
 }
-// End ACF-first ticket pricing.
+
+// End MirrenDirect complimentary pass promotion + ACF-first ticket pricing.
 
 // Modify proceed to checkout button text on cart page
 add_filter('gettext', 'di_change_proceed_to_checkout_text', 20, 3);
@@ -1191,6 +2073,793 @@ function di_change_proceed_to_checkout_text($translated_text, $text, $domain) {
     }
     return $translated_text;
 }
+
+
+/**
+ * Return ticket quantities that should be merged for TEC attendee registration.
+ *
+ * WooCommerce itself keeps the normal and MirrenDirect promo lines separate.
+ * This helper only identifies Ticket IDs that exist as BOTH:
+ *
+ * - A normal WooCommerce cart line.
+ * - A MirrenDirect promotional cart line.
+ *
+ * The returned quantity is the combined raw ticket quantity.
+ *
+ * @param array|null $cart_contents Optional WooCommerce cart contents.
+ * @return array Product/ticket IDs keyed by ID with merged quantity as value.
+ */
+function di_mirrendirect_get_tec_merged_ticket_quantities(
+	$cart_contents = null
+) {
+	if (
+		! function_exists( 'WC' ) ||
+		! WC()->cart instanceof WC_Cart ||
+		! function_exists( 'di_is_mirrendirect_promo_cart_item' )
+	) {
+		return array();
+	}
+
+	if ( null === $cart_contents ) {
+		$cart_contents = WC()->cart->get_cart();
+	}
+
+	if ( empty( $cart_contents ) ) {
+		return array();
+	}
+
+	$normal_product_ids = array();
+	$promo_product_ids  = array();
+	$total_quantities   = array();
+
+	foreach ( $cart_contents as $cart_item ) {
+		$product_id = isset( $cart_item['product_id'] )
+			? absint( $cart_item['product_id'] )
+			: 0;
+
+		$quantity = isset( $cart_item['quantity'] )
+			? absint( $cart_item['quantity'] )
+			: 0;
+
+		if ( ! $product_id || ! $quantity ) {
+			continue;
+		}
+
+		if ( ! isset( $total_quantities[ $product_id ] ) ) {
+			$total_quantities[ $product_id ] = 0;
+		}
+
+		$total_quantities[ $product_id ] += $quantity;
+
+		if ( di_is_mirrendirect_promo_cart_item( $cart_item ) ) {
+			$promo_product_ids[ $product_id ] = true;
+		} else {
+			$normal_product_ids[ $product_id ] = true;
+		}
+	}
+
+	$merged_quantities = array();
+
+	/*
+	 * Only merge when the SAME Ticket ID exists as both a normal and
+	 * promotional cart line.
+	 */
+	foreach ( $promo_product_ids as $product_id => $unused ) {
+		if ( ! isset( $normal_product_ids[ $product_id ] ) ) {
+			continue;
+		}
+
+		$merged_quantities[ $product_id ] =
+			$total_quantities[ $product_id ];
+	}
+
+	return $merged_quantities;
+}
+
+
+/**
+ * Correct the ticket quantities used by TEC's attendee-registration page.
+ *
+ * TEC's WooCommerce integration normally writes:
+ *
+ *     $tickets[ $product_id ] = $quantity;
+ *
+ * Because our paid and promo cart lines can use the same Ticket ID, the later
+ * cart line can overwrite the earlier quantity. Replace that quantity with the
+ * combined quantity specifically for MirrenDirect duplicate Ticket IDs.
+ *
+ * This does NOT alter the WooCommerce cart.
+ */
+add_filter(
+	'tribe_tickets_tickets_in_cart',
+	'di_mirrendirect_merge_tec_attendee_ticket_quantities',
+	9999,
+	2
+);
+function di_mirrendirect_merge_tec_attendee_ticket_quantities(
+	$tickets,
+	$provider = null
+) {
+	if ( ! is_array( $tickets ) ) {
+		return $tickets;
+	}
+
+	$merged_quantities =
+		di_mirrendirect_get_tec_merged_ticket_quantities();
+
+	if ( empty( $merged_quantities ) ) {
+		return $tickets;
+	}
+
+	foreach (
+		$merged_quantities
+		as $ticket_id => $quantity
+	) {
+		$tickets[ $ticket_id ] = $quantity;
+	}
+
+	return $tickets;
+}
+
+
+/**
+ * Compatibility for TEC's newer Commerce cart representation.
+ *
+ * Some Event Tickets Plus code paths use a list containing one array per
+ * WooCommerce cart line rather than the legacy Ticket-ID => quantity array.
+ *
+ * Collapse duplicate normal/promo entries for the same Ticket ID into one
+ * logical TEC ticket entry while leaving WooCommerce untouched.
+ */
+add_filter(
+	'tribe_tickets_plus_woocommerce_tickets_in_cart',
+	'di_mirrendirect_merge_tec_commerce_ticket_lines',
+	9999,
+	2
+);
+function di_mirrendirect_merge_tec_commerce_ticket_lines(
+	$tickets,
+	$cart_contents
+) {
+	if ( ! is_array( $tickets ) ) {
+		return $tickets;
+	}
+
+	$merged_quantities =
+		di_mirrendirect_get_tec_merged_ticket_quantities(
+			$cart_contents
+		);
+
+	if ( empty( $merged_quantities ) ) {
+		return $tickets;
+	}
+
+	$filtered_tickets = array();
+	$merged_seen      = array();
+
+	foreach ( $tickets as $ticket ) {
+		if (
+			! is_array( $ticket ) ||
+			empty( $ticket['ticket_id'] )
+		) {
+			$filtered_tickets[] = $ticket;
+			continue;
+		}
+
+		$ticket_id = absint( $ticket['ticket_id'] );
+
+		/*
+		 * Not one of our duplicate paid/promo Ticket IDs.
+		 */
+		if ( ! isset( $merged_quantities[ $ticket_id ] ) ) {
+			$filtered_tickets[] = $ticket;
+			continue;
+		}
+
+		/*
+		 * We've already emitted the merged version of this Ticket ID.
+		 */
+		if ( isset( $merged_seen[ $ticket_id ] ) ) {
+			continue;
+		}
+
+		$ticket['quantity'] = $merged_quantities[ $ticket_id ];
+
+		$filtered_tickets[] = $ticket;
+		$merged_seen[ $ticket_id ] = true;
+	}
+
+	return array_values( $filtered_tickets );
+}
+
+
+/**
+ * Determine whether an order contains multiple lines for the same ticket
+ * product where at least one of those lines is a MirrenDirect promo line.
+ *
+ * These are the only products that need TEC attendee-index correction.
+ *
+ * @param int $order_id   WooCommerce order ID.
+ * @param int $product_id Ticket/product ID.
+ * @return bool
+ */
+function di_mirrendirect_order_has_split_ticket_product(
+	$order_id,
+	$product_id
+) {
+	static $cache = array();
+
+	$order_id   = absint( $order_id );
+	$product_id = absint( $product_id );
+
+	if ( ! $order_id || ! $product_id ) {
+		return false;
+	}
+
+	$cache_key = $order_id . ':' . $product_id;
+
+	if ( isset( $cache[ $cache_key ] ) ) {
+		return $cache[ $cache_key ];
+	}
+
+	$order = wc_get_order( $order_id );
+
+	if ( ! $order instanceof WC_Order ) {
+		$cache[ $cache_key ] = false;
+		return false;
+	}
+
+	$matching_lines = 0;
+	$has_promo_line = false;
+
+	foreach ( $order->get_items( 'line_item' ) as $item ) {
+		if (
+			! $item instanceof WC_Order_Item_Product ||
+			$product_id !== absint( $item->get_product_id() )
+		) {
+			continue;
+		}
+
+		$matching_lines++;
+
+		if (
+			$item->get_meta(
+				'_di_mirrendirect_promo',
+				true
+			)
+		) {
+			$has_promo_line = true;
+		}
+	}
+
+	$cache[ $cache_key ] =
+		$matching_lines > 1 &&
+		$has_promo_line;
+
+	return $cache[ $cache_key ];
+}
+
+
+/**
+ * Maintain a continuous attendee index across separate Woo order lines that
+ * use the same Ticket ID.
+ *
+ * TEC normally resets its attendee index to zero for every Woo order line.
+ *
+ * @param int  $order_id   WooCommerce order ID.
+ * @param int  $product_id Ticket/product ID.
+ * @param bool $advance    Whether to advance to the next attendee.
+ * @param bool $reset      Whether to reset this order's counters.
+ * @return int Current zero-based attendee index.
+ */
+function di_mirrendirect_attendee_generation_index(
+	$order_id,
+	$product_id = 0,
+	$advance = false,
+	$reset = false
+) {
+	static $indexes = array();
+
+	$order_id   = absint( $order_id );
+	$product_id = absint( $product_id );
+
+	if ( ! $order_id ) {
+		return 0;
+	}
+
+	if ( $reset ) {
+		unset( $indexes[ $order_id ] );
+		return 0;
+	}
+
+	if ( ! isset( $indexes[ $order_id ] ) ) {
+		$indexes[ $order_id ] = array();
+	}
+
+	if (
+		! isset(
+			$indexes[
+				$order_id
+			][
+				$product_id
+			]
+		)
+	) {
+		$indexes[
+			$order_id
+		][
+			$product_id
+		] = 0;
+	}
+
+	$current = $indexes[
+		$order_id
+	][
+		$product_id
+	];
+
+	if ( $advance ) {
+		$indexes[
+			$order_id
+		][
+			$product_id
+		]++;
+	}
+
+	return $current;
+}
+
+
+/**
+ * Reset our continuous attendee counters whenever TEC starts generating an
+ * order's tickets.
+ */
+add_action(
+	'tribe_tickets_plus_woo_before_generate_tickets',
+	'di_mirrendirect_reset_attendee_generation_indexes',
+	1
+);
+
+function di_mirrendirect_reset_attendee_generation_indexes(
+	$order_id
+) {
+	di_mirrendirect_attendee_generation_index(
+		$order_id,
+		0,
+		false,
+		true
+	);
+}
+
+
+/**
+ * Return one raw attendee-registration entry from TEC's saved order meta.
+ *
+ * The attendee index is zero-based, matching TEC's internal representation.
+ *
+ * @param int $order_id       WooCommerce order ID.
+ * @param int $product_id     Ticket/product ID.
+ * @param int $attendee_index Zero-based attendee index.
+ * @return array|false
+ */
+function di_mirrendirect_get_order_attendee_meta(
+	$order_id,
+	$product_id,
+	$attendee_index
+) {
+	if (
+		! class_exists( 'Tribe__Tickets_Plus__Meta' )
+	) {
+		return false;
+	}
+
+	$meta = get_post_meta(
+		absint( $order_id ),
+		Tribe__Tickets_Plus__Meta::META_KEY,
+		true
+	);
+
+	if (
+		! is_array( $meta ) ||
+		! isset(
+			$meta[
+				absint( $product_id )
+			][
+				(int) $attendee_index
+			]
+		) ||
+		! is_array(
+			$meta[
+				absint( $product_id )
+			][
+				(int) $attendee_index
+			]
+		)
+	) {
+		return false;
+	}
+
+	return $meta[
+		absint( $product_id )
+	][
+		(int) $attendee_index
+	];
+}
+
+
+/**
+ * Correct IAC attendee names when the same Ticket ID exists across separate
+ * paid and MirrenDirect promo order lines.
+ */
+add_filter(
+	'tribe_tickets_attendee_create_individual_name',
+	'di_mirrendirect_correct_split_attendee_name',
+	999,
+	6
+);
+
+function di_mirrendirect_correct_split_attendee_name(
+	$attendee_name,
+	$attendee_number,
+	$order_id,
+	$ticket_id,
+	$post_id,
+	$provider
+) {
+	if (
+		! di_mirrendirect_order_has_split_ticket_product(
+			$order_id,
+			$ticket_id
+		)
+	) {
+		return $attendee_name;
+	}
+
+	$effective_index =
+		di_mirrendirect_attendee_generation_index(
+			$order_id,
+			$ticket_id
+		);
+
+	$meta = di_mirrendirect_get_order_attendee_meta(
+		$order_id,
+		$ticket_id,
+		$effective_index
+	);
+
+	if ( is_array( $meta ) ) {
+		$name = isset(
+			$meta['tribe-tickets-plus-iac-name']
+		)
+			? trim(
+				(string)
+					$meta[
+						'tribe-tickets-plus-iac-name'
+					]
+			)
+			: '';
+
+		if ( '' !== $name ) {
+			return sanitize_text_field( $name );
+		}
+	}
+
+	/*
+	 * Preserve Mirren's purchaser fallback for an unassigned pass.
+	 */
+	$order = wc_get_order( $order_id );
+
+	if ( $order instanceof WC_Order ) {
+		$billing_first_name = trim(
+			(string) $order->get_billing_first_name()
+		);
+
+		if ( '' !== $billing_first_name ) {
+			return $billing_first_name;
+		}
+	}
+
+	return $attendee_name;
+}
+
+
+/**
+ * Correct IAC attendee emails for split paid/promo ticket lines.
+ */
+add_filter(
+	'tribe_tickets_attendee_create_individual_email',
+	'di_mirrendirect_correct_split_attendee_email',
+	999,
+	6
+);
+
+function di_mirrendirect_correct_split_attendee_email(
+	$attendee_email,
+	$attendee_number,
+	$order_id,
+	$ticket_id,
+	$post_id,
+	$provider
+) {
+	if (
+		! di_mirrendirect_order_has_split_ticket_product(
+			$order_id,
+			$ticket_id
+		)
+	) {
+		return $attendee_email;
+	}
+
+	$effective_index =
+		di_mirrendirect_attendee_generation_index(
+			$order_id,
+			$ticket_id
+		);
+
+	$meta = di_mirrendirect_get_order_attendee_meta(
+		$order_id,
+		$ticket_id,
+		$effective_index
+	);
+
+	if ( is_array( $meta ) ) {
+		$email = isset(
+			$meta['tribe-tickets-plus-iac-email']
+		)
+			? trim(
+				(string)
+					$meta[
+						'tribe-tickets-plus-iac-email'
+					]
+			)
+			: '';
+
+		if ( '' !== $email ) {
+			return sanitize_email( $email );
+		}
+	}
+
+	/*
+	 * Unassigned attendee fallback.
+	 */
+	$order = wc_get_order( $order_id );
+
+	if ( $order instanceof WC_Order ) {
+		$billing_email = trim(
+			(string) $order->get_billing_email()
+		);
+
+		if ( '' !== $billing_email ) {
+			return sanitize_email( $billing_email );
+		}
+	}
+
+	return $attendee_email;
+}
+
+
+/**
+ * Correct custom attendee meta after TEC saves it.
+ *
+ * TEC's own WooCommerce meta callback runs at priority 10 using its reset
+ * per-order-item attendee index. We run afterward and replace that data using
+ * our continuous per-Ticket-ID attendee index.
+ *
+ * @param int $attendee_id       Generated attendee post ID.
+ * @param int $order_id          WooCommerce order ID.
+ * @param int $product_id        Ticket/product ID.
+ * @param int $order_attendee_id TEC's local per-order-line attendee index.
+ */
+add_action(
+	'event_tickets_woocommerce_ticket_created',
+	'di_mirrendirect_correct_split_attendee_meta',
+	100,
+	4
+);
+
+function di_mirrendirect_correct_split_attendee_meta(
+	$attendee_id,
+	$order_id,
+	$product_id,
+	$order_attendee_id
+) {
+	if (
+		! di_mirrendirect_order_has_split_ticket_product(
+			$order_id,
+			$product_id
+		)
+	) {
+		return;
+	}
+
+	$effective_index =
+		di_mirrendirect_attendee_generation_index(
+			$order_id,
+			$product_id
+		);
+
+	$attendee_meta =
+		di_mirrendirect_get_order_attendee_meta(
+			$order_id,
+			$product_id,
+			$effective_index
+		);
+
+	if (
+		is_array( $attendee_meta ) &&
+		class_exists( 'Tribe__Tickets_Plus__Meta' )
+	) {
+		/*
+		 * Run the same attendee-meta filters used elsewhere by TEC/Mirren.
+		 *
+		 * This removes IAC-only fields from the custom meta array and also
+		 * preserves our existing Last Name / Company purchaser fallback.
+		 */
+		$attendee_meta = apply_filters(
+			'tribe_tickets_plus_attendee_save_meta',
+			$attendee_meta,
+			$attendee_id,
+			$order_id,
+			$product_id,
+			$effective_index
+		);
+
+		update_post_meta(
+			$attendee_id,
+			Tribe__Tickets_Plus__Meta::META_KEY,
+			$attendee_meta
+		);
+	}
+
+	/*
+	 * Explicitly correct the stored IAC name/email as well. The filters above
+	 * correct them during generation, but persisting them here gives us a
+	 * final authoritative value on the attendee record.
+	 */
+	try {
+		$woo_provider = tribe(
+			'tickets-plus.commerce.woo'
+		);
+	} catch ( Throwable $e ) {
+		$woo_provider = null;
+	}
+
+	if ( is_object( $woo_provider ) ) {
+		$order = wc_get_order( $order_id );
+
+		$correct_name  = '';
+		$correct_email = '';
+
+		if ( is_array( $attendee_meta ) ) {
+			/*
+			 * IAC fields have normally been removed by the attendee-save
+			 * filter above, so retrieve them again from raw order meta.
+			 */
+			$raw_meta =
+				di_mirrendirect_get_order_attendee_meta(
+					$order_id,
+					$product_id,
+					$effective_index
+				);
+
+			if ( is_array( $raw_meta ) ) {
+				$correct_name = isset(
+					$raw_meta[
+						'tribe-tickets-plus-iac-name'
+					]
+				)
+					? trim(
+						(string)
+							$raw_meta[
+								'tribe-tickets-plus-iac-name'
+							]
+					)
+					: '';
+
+				$correct_email = isset(
+					$raw_meta[
+						'tribe-tickets-plus-iac-email'
+					]
+				)
+					? trim(
+						(string)
+							$raw_meta[
+								'tribe-tickets-plus-iac-email'
+							]
+					)
+					: '';
+			}
+		}
+
+		if (
+			'' === $correct_name &&
+			$order instanceof WC_Order
+		) {
+			$correct_name = trim(
+				(string)
+					$order->get_billing_first_name()
+			);
+		}
+
+		if (
+			'' === $correct_email &&
+			$order instanceof WC_Order
+		) {
+			$correct_email = trim(
+				(string)
+					$order->get_billing_email()
+			);
+		}
+
+		if (
+			'' !== $correct_name &&
+			isset( $woo_provider->full_name )
+		) {
+			update_post_meta(
+				$attendee_id,
+				$woo_provider->full_name,
+				sanitize_text_field(
+					$correct_name
+				)
+			);
+		}
+
+		if (
+			'' !== $correct_email &&
+			isset( $woo_provider->email )
+		) {
+			$correct_email =
+				sanitize_email( $correct_email );
+
+			$current_email = get_post_meta(
+				$attendee_id,
+				$woo_provider->email,
+				true
+			);
+
+			update_post_meta(
+				$attendee_id,
+				$woo_provider->email,
+				$correct_email
+			);
+
+			/*
+			 * Match TEC's IAC behavior when an attendee email changes.
+			 */
+			if (
+				$correct_email !== $current_email &&
+				isset( $woo_provider->security_code ) &&
+				method_exists(
+					$woo_provider,
+					'generate_security_code'
+				)
+			) {
+				update_post_meta(
+					$attendee_id,
+					$woo_provider->security_code,
+					$woo_provider->generate_security_code(
+						$attendee_id .
+						'_' .
+						$correct_email
+					)
+				);
+			}
+		}
+	}
+
+	/*
+	 * Advance only after this attendee has been completely processed.
+	 *
+	 * Name and email filters for the next attendee will therefore see the
+	 * next continuous index.
+	 */
+	di_mirrendirect_attendee_generation_index(
+		$order_id,
+		$product_id,
+		true
+	);
+}
+
 
 // Removes the "Optional" placeholder that is shown by default when IAC settings are set to "Allow"
 add_filter( 'tribe_tickets_plus_attendee_registration_iac_fields', 'di_rework_attendee_fields', 10, 3 );
@@ -1489,6 +3158,507 @@ add_filter(
 	20,
 	5
 );
+
+
+/**
+ * Temporary context used while TEC renders attendee information for one
+ * WooCommerce order item.
+ *
+ * @param array|null $set_context Context to set. Pass an empty array to clear.
+ * @return array
+ */
+function di_mirrendirect_tec_order_item_context( $set_context = null ) {
+	static $context = array();
+
+	if ( null !== $set_context ) {
+		$context = is_array( $set_context )
+			? $set_context
+			: array();
+	}
+
+	return $context;
+}
+
+
+/**
+ * Return the attendee IDs that belong to one WooCommerce order item when the
+ * same TEC Ticket/Product ID exists on multiple order lines.
+ *
+ * TEC normally renders attendees by Order ID + Ticket ID only, which causes
+ * all attendees for a duplicated product ID to appear beneath every matching
+ * Woo order line.
+ *
+ * Prefer TEC's own stored order-item relationship when available. Some current
+ * Mirren attendee records do not contain that relationship, so fall back to
+ * TEC's generation order:
+ *
+ *   order items are processed sequentially;
+ *   attendees for each item are inserted sequentially.
+ *
+ * @param WC_Order $order   WooCommerce order.
+ * @param int      $item_id Current WooCommerce order-item ID.
+ * @return array|false Allowed attendee IDs, or false when no special handling
+ *                     is required.
+ */
+function di_mirrendirect_get_attendee_ids_for_order_item(
+	$order,
+	$item_id
+) {
+	static $cache = array();
+
+	if (
+		! $order instanceof WC_Order ||
+		! $item_id
+	) {
+		return false;
+	}
+
+	$order_id = absint( $order->get_id() );
+	$item_id  = absint( $item_id );
+
+	$cache_key = $order_id . ':' . $item_id;
+
+	if ( array_key_exists( $cache_key, $cache ) ) {
+		return $cache[ $cache_key ];
+	}
+
+	$current_item = $order->get_item( $item_id );
+
+	if ( ! $current_item instanceof WC_Order_Item_Product ) {
+		$cache[ $cache_key ] = false;
+		return false;
+	}
+
+	$product_id = absint(
+		$current_item->get_product_id()
+	);
+
+	if ( ! $product_id ) {
+		$cache[ $cache_key ] = false;
+		return false;
+	}
+
+	/*
+	 * Find every order line using this same Product/Ticket ID.
+	 */
+	$matching_items = array();
+	$has_promo_item = false;
+
+	foreach (
+		$order->get_items( 'line_item' )
+		as $matching_item_id => $matching_item
+	) {
+		if (
+			! $matching_item instanceof WC_Order_Item_Product ||
+			$product_id !== absint(
+				$matching_item->get_product_id()
+			)
+		) {
+			continue;
+		}
+
+		$matching_items[] = array(
+			'item_id'  => absint( $matching_item_id ),
+			'quantity' => max(
+				0,
+				(int) $matching_item->get_quantity()
+			),
+		);
+
+		if (
+			$matching_item->get_meta(
+				'_di_mirrendirect_promo',
+				true
+			)
+		) {
+			$has_promo_item = true;
+		}
+	}
+
+	/*
+	 * Only intervene in the duplicate-product situation introduced by the
+	 * MirrenDirect promotion.
+	 */
+	if (
+		count( $matching_items ) < 2 ||
+		! $has_promo_item
+	) {
+		$cache[ $cache_key ] = false;
+		return false;
+	}
+
+	/*
+	 * Fetch all attendees generated for this order + product.
+	 *
+	 * Sorting by attendee post ID reproduces TEC's ticket-generation sequence.
+	 */
+	$attendee_ids = get_posts(
+		array(
+			'post_type'      => 'tribe_wooticket',
+			'post_status'    => array(
+				'publish',
+				'trash',
+			),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'orderby'        => 'ID',
+			'order'          => 'ASC',
+			'meta_query'     => array(
+				'relation' => 'AND',
+				array(
+					'key'   => '_tribe_wooticket_order',
+					'value' => $order_id,
+				),
+				array(
+					'key'   => '_tribe_wooticket_product',
+					'value' => $product_id,
+				),
+			),
+		)
+	);
+
+	$attendee_ids = array_map(
+		'absint',
+		(array) $attendee_ids
+	);
+
+	if ( empty( $attendee_ids ) ) {
+		$cache[ $cache_key ] = array();
+		return array();
+	}
+
+	/*
+	 * If TEC has populated its native order-item relationship, use that.
+	 */
+	$native_links_complete = true;
+	$native_item_attendees = array();
+
+	foreach ( $attendee_ids as $attendee_id ) {
+		$native_item_id = absint(
+			get_post_meta(
+				$attendee_id,
+				'_tribe_wooticket_order_item',
+				true
+			)
+		);
+
+		if ( ! $native_item_id ) {
+			$native_links_complete = false;
+			break;
+		}
+
+		if (
+			! isset(
+				$native_item_attendees[
+					$native_item_id
+				]
+			)
+		) {
+			$native_item_attendees[
+				$native_item_id
+			] = array();
+		}
+
+		$native_item_attendees[
+			$native_item_id
+		][] = $attendee_id;
+	}
+
+	if ( $native_links_complete ) {
+		$allowed = isset(
+			$native_item_attendees[ $item_id ]
+		)
+			? $native_item_attendees[ $item_id ]
+			: array();
+
+		$cache[ $cache_key ] = $allowed;
+
+		return $allowed;
+	}
+
+	/*
+	 * Fallback for Mirren's current TEC-generated attendees, which do not
+	 * contain _tribe_wooticket_order_item.
+	 *
+	 * Determine this order item's position within the duplicate product
+	 * lines and slice the sequentially generated attendee IDs accordingly.
+	 */
+	$offset   = 0;
+	$quantity = 0;
+	$found    = false;
+
+	foreach ( $matching_items as $matching_item ) {
+		if (
+			$item_id ===
+			$matching_item['item_id']
+		) {
+			$quantity = $matching_item['quantity'];
+			$found    = true;
+			break;
+		}
+
+		$offset += $matching_item['quantity'];
+	}
+
+	if ( ! $found ) {
+		$cache[ $cache_key ] = false;
+		return false;
+	}
+
+	$allowed = array_slice(
+		$attendee_ids,
+		$offset,
+		$quantity
+	);
+
+	$cache[ $cache_key ] = $allowed;
+
+	return $allowed;
+}
+
+
+/**
+ * Set attendee-rendering context for a WooCommerce order item.
+ *
+ * @param int                $item_id Order-item ID.
+ * @param WC_Order_Item|null $item    Order item.
+ */
+function di_mirrendirect_set_tec_order_item_context(
+	$item_id,
+	$item
+) {
+	/*
+	 * Always clear stale context first.
+	 */
+	di_mirrendirect_tec_order_item_context(
+		array()
+	);
+
+	if (
+		! $item instanceof WC_Order_Item_Product
+	) {
+		return;
+	}
+
+	$order = $item->get_order();
+
+	if ( ! $order instanceof WC_Order ) {
+		return;
+	}
+
+	$allowed_attendee_ids =
+		di_mirrendirect_get_attendee_ids_for_order_item(
+			$order,
+			$item_id
+		);
+
+	/*
+	 * False means this is not one of our duplicate promo-product cases.
+	 */
+	if ( false === $allowed_attendee_ids ) {
+		return;
+	}
+
+	di_mirrendirect_tec_order_item_context(
+		array(
+			'order_id'             => absint(
+				$order->get_id()
+			),
+			'order_item_id'        => absint(
+				$item_id
+			),
+			'product_id'           => absint(
+				$item->get_product_id()
+			),
+			'allowed_attendee_ids' => array_map(
+				'absint',
+				$allowed_attendee_ids
+			),
+		)
+	);
+}
+
+
+/**
+ * Set context before TEC renders attendee data on customer-facing order
+ * details.
+ */
+add_action(
+	'woocommerce_order_item_meta_start',
+	'di_mirrendirect_frontend_tec_context_start',
+	1,
+	4
+);
+
+function di_mirrendirect_frontend_tec_context_start(
+	$item_id,
+	$item,
+	$order,
+	$plain_text = false
+) {
+	di_mirrendirect_set_tec_order_item_context(
+		$item_id,
+		$item
+	);
+}
+
+
+/**
+ * Clear frontend order-item context after TEC's callback has run.
+ */
+add_action(
+	'woocommerce_order_item_meta_start',
+	'di_mirrendirect_frontend_tec_context_end',
+	9999,
+	4
+);
+
+function di_mirrendirect_frontend_tec_context_end(
+	$item_id,
+	$item,
+	$order,
+	$plain_text = false
+) {
+	di_mirrendirect_tec_order_item_context(
+		array()
+	);
+}
+
+
+/**
+ * Set context before TEC renders attendee information inside the WooCommerce
+ * admin order-item table.
+ *
+ * TEC's admin attendee callback runs on this hook at priority 10.
+ */
+add_action(
+	'woocommerce_before_order_itemmeta',
+	'di_mirrendirect_admin_tec_context_start',
+	1,
+	3
+);
+
+function di_mirrendirect_admin_tec_context_start(
+	$item_id,
+	$item,
+	$product
+) {
+	di_mirrendirect_set_tec_order_item_context(
+		$item_id,
+		$item
+	);
+}
+
+
+/**
+ * Clear admin context after TEC's attendee callback has run.
+ */
+add_action(
+	'woocommerce_before_order_itemmeta',
+	'di_mirrendirect_admin_tec_context_end',
+	9999,
+	3
+);
+
+function di_mirrendirect_admin_tec_context_end(
+	$item_id,
+	$item,
+	$product
+) {
+	di_mirrendirect_tec_order_item_context(
+		array()
+	);
+}
+
+
+/**
+ * Scope TEC attendee data to the WooCommerce order line currently being
+ * rendered.
+ *
+ * Both TEC's frontend order-detail renderer and its Woo admin renderer convert
+ * attendee posts through get_attendee(), which applies this filter.
+ *
+ * TEC subsequently compares the requested Ticket/Product ID against
+ * $attendee_data['product_id']. Giving an attendee outside the current line a
+ * temporary product_id of zero causes TEC's normal renderer to skip it, while
+ * leaving the actual attendee record completely untouched.
+ *
+ * @param array   $attendee_data TEC attendee data.
+ * @param string  $provider      Ticket provider.
+ * @param WP_Post $attendee      Attendee post.
+ * @param int     $post_id       Parent post/order ID.
+ * @return array
+ */
+add_filter(
+	'tribe_tickets_attendee_data',
+	'di_mirrendirect_scope_tec_attendee_to_order_item',
+	9999,
+	4
+);
+
+function di_mirrendirect_scope_tec_attendee_to_order_item(
+	$attendee_data,
+	$provider,
+	$attendee,
+	$post_id
+) {
+	$context =
+		di_mirrendirect_tec_order_item_context();
+
+	if (
+		empty( $context ) ||
+		! is_array( $attendee_data ) ||
+		! $attendee instanceof WP_Post ||
+		empty( $context['product_id'] ) ||
+		! isset(
+			$context['allowed_attendee_ids']
+		)
+	) {
+		return $attendee_data;
+	}
+
+	/*
+	 * Leave unrelated ticket types alone.
+	 */
+	if (
+		absint(
+			$attendee_data['product_id'] ?? 0
+		) !==
+		absint( $context['product_id'] )
+	) {
+		return $attendee_data;
+	}
+
+	$attendee_id = absint(
+		$attendee->ID
+	);
+
+	$allowed_attendee_ids = array_map(
+		'absint',
+		(array)
+			$context['allowed_attendee_ids']
+	);
+
+	if (
+		! in_array(
+			$attendee_id,
+			$allowed_attendee_ids,
+			true
+		)
+	) {
+		/*
+		 * Do not alter the attendee post itself.
+		 *
+		 * This only changes the temporary data array TEC is currently
+		 * rendering. TEC's own renderer will see the ticket ID mismatch and
+		 * skip this attendee for the current Woo order line.
+		 */
+		$attendee_data['product_id'] = 0;
+	}
+
+	return $attendee_data;
+}
+
 
 // View Thank You Page @ Edit Order Admin
 add_filter( 'woocommerce_order_actions', 'di_show_thank_you_page_order_admin_actions', 9999, 2 );
