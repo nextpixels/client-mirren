@@ -149,10 +149,32 @@ add_filter( 'tec_event_automator_zapier_max_queue_items', function($max_items) {
 				}
 				.wp-list-table .column-session_time,
 				.wp-list-table .column-session_track{
-					width: 110px;
+					width: 130px;
 				}
 			</style>
 			<?php
+		}
+
+		//Sortable columns on sessions listing:
+		add_filter( 'manage_edit-sessions_sortable_columns', 'di_sessions_sortable_columns' );
+		function di_sessions_sortable_columns( $columns ) {
+			$columns['session_date']  = 'session_timestamp';
+			$columns['session_time']  = 'session_timestamp';
+			$columns['session_track'] = 'session_track';
+			return $columns;
+		}
+
+		add_action( 'pre_get_posts', 'di_sessions_sortable_columns_query' );
+		function di_sessions_sortable_columns_query( $query ) {
+			if ( ! is_admin() || ! $query->is_main_query() || $query->get( 'post_type' ) !== 'sessions' ) {
+				return;
+			}
+
+			$orderby = $query->get( 'orderby' );
+			if ( $orderby === 'session_timestamp' || $orderby === 'session_track' ) {
+				$query->set( 'meta_key', $orderby );
+				$query->set( 'orderby', 'meta_value' );
+			}
 		}
 	//Admin Columns for Sessions
 
