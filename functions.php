@@ -97,6 +97,46 @@ add_filter( 'tec_event_automator_zapier_max_queue_items', function($max_items) {
 		add_action( 'init', 'create_posttype' );
 	//Custom Post Types
 
+	//Admin Columns for Sessions (Session Date, Session Time, Track -- read from the
+	//session_timestamp and session_track ACF fields)
+		add_filter( 'manage_sessions_posts_columns', 'di_sessions_admin_columns' );
+		function di_sessions_admin_columns( $columns ) {
+			$new_columns = array();
+			foreach ( $columns as $key => $label ) {
+				$new_columns[ $key ] = $label;
+				if ( $key === 'title' ) {
+					$new_columns['session_date']  = __( 'Session Date' );
+					$new_columns['session_time']  = __( 'Session Time' );
+					$new_columns['session_track'] = __( 'Track' );
+				}
+			}
+			return $new_columns;
+		}
+
+		add_action( 'manage_sessions_posts_custom_column', 'di_sessions_admin_column_content', 10, 2 );
+		function di_sessions_admin_column_content( $column, $post_id ) {
+
+			//session_timestamp is stored/returned as YmdHis (e.g. 20260115143000) -- same field
+			//used throughout sessions-get-list.php etc. Parse it once and reuse for both columns.
+			if ( $column === 'session_date' || $column === 'session_time' ) {
+				$timestamp = get_field( 'session_timestamp', $post_id );
+				$date      = $timestamp ? DateTime::createFromFormat( 'YmdHis', $timestamp ) : false;
+
+				if ( $column === 'session_date' ) {
+					echo $date ? esc_html( $date->format( 'F j, Y' ) ) : '—';
+				}
+				else {
+					echo $date ? esc_html( $date->format( 'g:i a' ) ) : '—';
+				}
+			}
+
+			if ( $column === 'session_track' ) {
+				$track = get_field( 'session_track', $post_id );
+				echo ( $track !== '' && $track !== null ) ? esc_html( $track ) : '—';
+			}
+		}
+	//Admin Columns for Sessions
+
 
 	//Stylesheets
 		function theme_styles() {
