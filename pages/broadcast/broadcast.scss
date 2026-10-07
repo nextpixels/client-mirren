@@ -23,8 +23,13 @@ section.broadcast-hero {
   position: relative;
 }
 .broadcast-hero-main-content h1 {
-    font-size: 5.6rem;
+    font-size: 4rem;
     line-height: 1;
+}
+@media(max-width: 700px){
+    .broadcast-hero-main-content h1 {
+        font-size: 2.6rem;
+    }
 }
 .broadcast-hero-main-content p,
 .broadcast-hero-main-content a{
