@@ -1,3 +1,44 @@
+/* Tabs (only rendered when at least one session has a "tab" value set) */
+	.featured-sessions-tabs{
+		margin-bottom: 30px;
+		text-align: center;
+
+		/* A plain border-bottom can't fade -- border-image lets the gradient act as the border
+		   itself, full color (#7B71AB) in the middle, fading to transparent at both ends: */
+		border-bottom: 1px solid transparent;
+		border-image: linear-gradient(to right, rgba(123,113,171,0) 0%, rgba(123,113,171,1) 50%, rgba(123,113,171,0) 100%);
+		border-image-slice: 1;
+	}
+	.featured-sessions-tab-link{
+		display: inline-block;
+		margin-right: 1px;
+		padding: 10px 25px;
+		border-top-left-radius: 8px;
+		border-top-right-radius: 8px;
+		background: #938BBA;
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.featured-sessions-tab-link,
+	.featured-sessions-tab-link:visited,
+	.featured-sessions-tab-link:hover{
+		color: #fff;
+	}
+	.featured-sessions-tab-link.current{
+		background: #7B71AB;
+	}
+	.featured-sessions-tab-content{
+		display: none;
+	}
+	.featured-sessions-tab-content.current{
+		display: block;
+	}
+	.featured-sessions-tab-text{
+		margin-bottom: 30px;
+	}
+/* Tabs */
+
 .featured-sessions-tile{
 	background: #fff;
 	border-radius: 10px;
